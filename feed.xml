@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>夏之朝露 · Xialu</title>
+    <link>https://www.dewai.info</link>
+    <atom:link href="https://www.dewai.info/feed.xml" rel="self" type="application/rss+xml"/>
+    <description>记录对 AI、产品与生活的思考。在技术浪潮与人文温度之间，寻找属于自己的表达方式。</description>
+    <language>zh-CN</language>
+    <lastBuildDate>Tue, 11 Mar 2026 00:00:00 +0800</lastBuildDate>
+    <managingEditor>hello@xialu.ai (夏之朝露)</managingEditor>
+    <webMaster>hello@xialu.ai (夏之朝露)</webMaster>
+    <image>
+      <url>https://www.dewai.info/favicon.ico</url>
+      <title>夏之朝露 · Xialu</title>
+      <link>https://www.dewai.info</link>
+    </image>
+
+    <item>
+      <title>Agent × 邮件：我强推的一个组合用法</title>
+      <link>https://mp.weixin.qq.com/s/EGv0guwoLs3y4cWVN_9IVA</link>
+      <guid isPermaLink="false">xialu-article-1</guid>
+      <pubDate>Wed, 11 Mar 2026 00:00:00 +0800</pubDate>
+      <dc:creator>夏之朝露</dc:creator>
+      <category>AI</category>
+      <category>Agent</category>
+      <category>效率</category>
+      <description><![CDATA[一直在思考：怎么把个人经验、思考、工作流，变成可沉淀、可复用、不丢失的东西。试了很多方式后，我最推荐一个安静但强大的组合：Agent × 邮件。]]></description>
+    </item>
+
+    <item>
+      <title>当一切走向 Agent 化</title>
+      <link>https://mp.weixin.qq.com/s/i3kuUmOYjd6OSxMnwocYXQ</link>
+      <guid isPermaLink="false">xialu-article-2</guid>
+      <pubDate>Tue, 03 Mar 2026 00:00:00 +0800</pubDate>
+      <dc:creator>夏之朝露</dc:creator>
+      <category>AI</category>
+      <category>Agent</category>
+      <category>趋势</category>
+      <description><![CDATA[最近体验了几款产品，感受越来越强烈。于是把对 Agent 化的一些零碎思考记下来。不一定对，只是想记下来。]]></description>
+    </item>
+
+    <item>
+      <title>系统设计者的礼物</title>
+      <link>https://mp.weixin.qq.com/s/oqlvm6n9ek2KNjmF5F-X7g</link>
+      <guid isPermaLink="false">xialu-article-3</guid>
+      <pubDate>Fri, 20 Feb 2026 00:00:00 +0800</pubDate>
+      <dc:creator>夏之朝露</dc:creator>
+      <category>产品</category>
+      <category>设计</category>
+      <category>思考</category>
+      <description><![CDATA[好的规则，设计的不是礼物本身，而是如何把所有人都变成参与者。从设计一个游戏到构想一个让数百万人创造的产品，底层逻辑是相通的。]]></description>
+    </item>
+
+    <item>
+      <title>随机性：是对他人的消耗，对自己的奖励</title>
+      <link>https://mp.weixin.qq.com/s/wv6WBIl6BJtk4Umss1VKsg</link>
+      <guid isPermaLink="false">xialu-article-4</guid>
+      <pubDate>Thu, 15 Jan 2026 00:00:00 +0800</pubDate>
+      <dc:creator>夏之朝露</dc:creator>
+      <category>思考</category>
+      <category>心理学</category>
+      <category>效率</category>
+      <description><![CDATA[随机性正以前所未有的频率入侵日常生活。对被动接收者而言，它是无形的注意力黑洞；对主动掌控者来说，它却是获取掌控感与权威感的利器。]]></description>
+    </item>
+
+    <item>
+      <title>睡前聊聊：守住慢思考与真连接</title>
+      <link>https://mp.weixin.qq.com/s/P3Vu3ATIAI7ThByC82Jc_A</link>
+      <guid isPermaLink="false">xialu-article-5</guid>
+      <pubDate>Mon, 12 Jan 2026 00:00:00 +0800</pubDate>
+      <dc:creator>夏之朝露</dc:creator>
+      <category>AI</category>
+      <category>思考</category>
+      <category>生活</category>
+      <description><![CDATA[最近人机交互变多了，发现自己好像有意无意的在守护这两样东西：慢思考的能力，和人与人之间的信任与联结。]]></description>
+    </item>
+
+    <item>
+      <title>AI 应用发展的几点朴素理解</title>
+      <link>https://mp.weixin.qq.com/s/7yzTdJGryd9N8pu_KJ13FA</link>
+      <guid isPermaLink="false">xialu-article-6</guid>
+      <pubDate>Thu, 08 Jan 2026 00:00:00 +0800</pubDate>
+      <dc:creator>夏之朝露</dc:creator>
+      <category>AI</category>
+      <category>产品</category>
+      <category>趋势</category>
+      <description><![CDATA[AI这场变革和以往所有技术变革的逻辑一脉相承——先作用于生产端，之后才会逐步延伸至消费端。]]></description>
+    </item>
+
+    <item>
+      <title>如何解"命题作文"</title>
+      <link>https://mp.weixin.qq.com/s/16Ct88Q1vcHCZSR34iLKUw</link>
+      <guid isPermaLink="false">xialu-article-7</guid>
+      <pubDate>Mon, 05 Jan 2026 00:00:00 +0800</pubDate>
+      <dc:creator>夏之朝露</dc:creator>
+      <category>产品</category>
+      <category>方法论</category>
+      <category>思考</category>
+      <description><![CDATA[从"执行命题"到"自己选题"的成长过程中，我们都需要一套系统的方法，把模糊的方向变成清晰的路径。]]></description>
+    </item>
+
+    <item>
+      <title>听 MANUS 创始人访谈有感：时机与清醒</title>
+      <link>https://mp.weixin.qq.com/s/1uiNeMPI2VFbmtLyiHkEXg</link>
+      <guid isPermaLink="false">xialu-article-8</guid>
+      <pubDate>Thu, 25 Dec 2025 00:00:00 +0800</pubDate>
+      <dc:creator>夏之朝露</dc:creator>
+      <category>创业</category>
+      <category>AI</category>
+      <category>产品</category>
+      <description><![CDATA[最近听了 Manus 创始人肖弘的 3 小时访谈，有不少收获。时机是核心，普通人更缺对时机 ALL IN 的勇气和等待的耐心。]]></description>
+    </item>
+
+    <item>
+      <title>AI 时代，保留一份"真实的粗糙感"</title>
+      <link>https://mp.weixin.qq.com/s/C6iqP8T5Yjo8Wr9nXeHduA</link>
+      <guid isPermaLink="false">xialu-article-9</guid>
+      <pubDate>Wed, 31 Dec 2025 00:00:00 +0800</pubDate>
+      <dc:creator>夏之朝露</dc:creator>
+      <category>AI</category>
+      <category>思考</category>
+      <category>创作</category>
+      <description><![CDATA[在AI越来越能"替我们表达"的时代，我们该留住什么？我想，或许是那种"粗糙的真实感"。]]></description>
+    </item>
+
+    <item>
+      <title>建立「节能」的个人系统</title>
+      <link>https://mp.weixin.qq.com/s/IgLNSyccDYV0FCHYxlzShw</link>
+      <guid isPermaLink="false">xialu-article-10</guid>
+      <pubDate>Sat, 20 Dec 2025 00:00:00 +0800</pubDate>
+      <dc:creator>夏之朝露</dc:creator>
+      <category>生活</category>
+      <category>效率</category>
+      <category>思考</category>
+      <description><![CDATA[在人生这场长跑中，怎样才能既跑得从容，又能收获不错的成果？我理解可能在于三个词：惯性、冗余与爆发。]]></description>
+    </item>
+
+    <item>
+      <title>机器 or 人：前序</title>
+      <link>https://mp.weixin.qq.com/s/R1gnIPWSXb9aHV7E5xXk5Q</link>
+      <guid isPermaLink="false">xialu-article-11</guid>
+      <pubDate>Tue, 02 Dec 2025 00:00:00 +0800</pubDate>
+      <dc:creator>夏之朝露</dc:creator>
+      <category>产品</category>
+      <category>思考</category>
+      <category>微信</category>
+      <description><![CDATA[做产品这么多年，我深刻意识到两种逻辑。从"机器"（效率）的角度思考问题，还是"人"（创新）的角度思考问题。]]></description>
+    </item>
+
+    <item>
+      <title>浅谈"认知"与"共识"</title>
+      <link>https://mp.weixin.qq.com/s/SBIbcBmrdxp4dLGiwB5GTw</link>
+      <guid isPermaLink="false">xialu-article-12</guid>
+      <pubDate>Tue, 25 Nov 2025 00:00:00 +0800</pubDate>
+      <dc:creator>夏之朝露</dc:creator>
+      <category>产品</category>
+      <category>商业</category>
+      <category>思考</category>
+      <description><![CDATA[认知不仅关键，甚至是产品的核心本质。从认知到共识，是产品从"被选择"到"被依赖"的过程。]]></description>
+    </item>
+
+    <item>
+      <title>为自己设计"嗑瓜子效应"</title>
+      <link>https://mp.weixin.qq.com/s/XCr6uS5RmXN6Epg-oQfwVw</link>
+      <guid isPermaLink="false">xialu-article-13</guid>
+      <pubDate>Thu, 20 Nov 2025 00:00:00 +0800</pubDate>
+      <dc:creator>夏之朝露</dc:creator>
+      <category>生活</category>
+      <category>习惯</category>
+      <category>心理学</category>
+      <description><![CDATA[做成本很低的动作，并即时获得正反馈，重复做，会让人停不下来。我试着把它挪到自己的生活里，发现对养成个人习惯同样管用。]]></description>
+    </item>
+
+    <item>
+      <title>我们为什么会觉得"累"</title>
+      <link>https://mp.weixin.qq.com/s/eJEXvW3lVS7WfcLd5QF_Cw</link>
+      <guid isPermaLink="false">xialu-article-14</guid>
+      <pubDate>Thu, 13 Nov 2025 00:00:00 +0800</pubDate>
+      <dc:creator>夏之朝露</dc:creator>
+      <category>生活</category>
+      <category>心理学</category>
+      <category>思考</category>
+      <description><![CDATA[累不累、忙不忙其实不重要，真正耗人的，是情绪上的拉扯。比起时间，比起金钱，能让注意力聚焦才是最宝贵的。]]></description>
+    </item>
+
+    <item>
+      <title>睡前聊出来的思考：关于"滚雪球"和"省时间"的小发现</title>
+      <link>https://mp.weixin.qq.com/s/v0s4Wt2yYCDAXRhkwuAr5A</link>
+      <guid isPermaLink="false">xialu-article-15</guid>
+      <pubDate>Tue, 11 Nov 2025 00:00:00 +0800</pubDate>
+      <dc:creator>夏之朝露</dc:creator>
+      <category>商业</category>
+      <category>效率</category>
+      <category>思考</category>
+      <description><![CDATA[不管是卖零食还是做播客，核心都是先抓住一个明确的需求，再用低成本、快速度的方式先把规模做起来。]]></description>
+    </item>
+
+    <item>
+      <title>分享一个"解脱"的小方法</title>
+      <link>https://mp.weixin.qq.com/s/vHIHZgL_dD4dXrpFdpfHkQ</link>
+      <guid isPermaLink="false">xialu-article-16</guid>
+      <pubDate>Fri, 31 Oct 2025 00:00:00 +0800</pubDate>
+      <dc:creator>夏之朝露</dc:creator>
+      <category>生活</category>
+      <category>AI</category>
+      <category>微信</category>
+      <description><![CDATA[减少无效的注意力内耗，转而把精力放在"看见更大的世界"上。就像想忘掉错的人，最好的方式是先看到整片森林。]]></description>
+    </item>
+
+  </channel>
+</rss>

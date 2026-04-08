@@ -1,0 +1,1750 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>主题帖 - 邮箱</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif; background: #f5f6f8; color: #1d2129; font-size: 14px; height: 100vh; overflow: hidden; }
+
+/* ========== 顶栏 ========== */
+.top-bar {
+  height: 52px; background: #fff; border-bottom: 1px solid #e5e6eb;
+  display: flex; align-items: center; padding: 0 20px; gap: 24px;
+}
+.top-bar .logo { font-size: 16px; font-weight: 600; color: #1d2129; display: flex; align-items: center; gap: 8px; }
+.top-bar .tabs { display: flex; gap: 0; margin-left: 20px; }
+.top-bar .tab { padding: 14px 20px; font-size: 14px; color: #86909c; cursor: pointer; border-bottom: 2px solid transparent; transition: all .2s; }
+.top-bar .tab:hover { color: #1d2129; }
+.top-bar .tab.active { color: #165dff; border-bottom-color: #165dff; font-weight: 500; }
+.top-bar .user-info { margin-left: auto; display: flex; align-items: center; gap: 12px; }
+.top-bar .avatar { width: 32px; height: 32px; border-radius: 50%; background: #8ea1c1; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 500; }
+.top-bar .search-box { display: flex; align-items: center; background: #f2f3f5; border-radius: 6px; padding: 6px 12px; gap: 6px; }
+.top-bar .search-box input { border: none; background: transparent; outline: none; font-size: 13px; width: 180px; color: #1d2129; }
+
+/* ========== 主体 ========== */
+.main { display: flex; height: calc(100vh - 52px); }
+
+/* ========== 左侧导航 ========== */
+.sidebar {
+  width: 64px; background: #fff; border-right: 1px solid #e5e6eb;
+  display: flex; flex-direction: column; align-items: center; padding-top: 12px; gap: 4px; flex-shrink: 0;
+}
+.sidebar .nav-item {
+  width: 48px; height: 48px; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  border-radius: 8px; cursor: pointer; font-size: 11px; color: #86909c; gap: 2px; transition: all .15s;
+}
+.sidebar .nav-item:hover { background: #f2f3f5; }
+.sidebar .nav-item.active { background: #e8f3ff; color: #165dff; }
+.sidebar .nav-item .nav-icon { font-size: 20px; }
+
+/* ========== 主题列表 ========== */
+.topic-list {
+  width: 340px; background: #fff; border-right: 1px solid #e5e6eb;
+  display: flex; flex-direction: column; flex-shrink: 0; overflow: hidden;
+}
+.topic-list-header { padding: 16px 16px 12px; border-bottom: 1px solid #f2f3f5; }
+.topic-list-header h2 { font-size: 16px; font-weight: 600; margin-bottom: 12px; }
+.topic-filter { display: flex; gap: 8px; flex-wrap: wrap; }
+.filter-tag {
+  padding: 4px 12px; border-radius: 14px; font-size: 12px; cursor: pointer;
+  background: #f2f3f5; color: #4e5969; transition: all .15s; white-space: nowrap;
+}
+.filter-tag:hover { background: #e8f3ff; color: #165dff; }
+.filter-tag.active { background: #165dff; color: #fff; }
+
+.topic-items { flex: 1; overflow-y: auto; }
+.topic-item {
+  padding: 14px 16px; border-bottom: 1px solid #f7f8fa; cursor: pointer; transition: background .15s; position: relative;
+}
+.topic-item:hover { background: #f7f8fa; }
+.topic-item.active { background: #e8f3ff; }
+.topic-item .topic-title {
+  font-size: 14px; font-weight: 500; color: #1d2129; margin-bottom: 6px;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.5;
+}
+.topic-item .topic-meta { display: flex; align-items: center; gap: 8px; font-size: 12px; color: #86909c; }
+.topic-item .topic-meta .dot { width: 3px; height: 3px; border-radius: 50%; background: #c9cdd4; }
+.topic-item .topic-status { position: absolute; top: 14px; right: 16px; font-size: 11px; padding: 2px 8px; border-radius: 10px; }
+.status-active { background: #e8ffea; color: #00b42a; }
+.status-pending { background: #fff7e8; color: #ff7d00; }
+.status-done { background: #f2f3f5; color: #86909c; }
+.topic-item .topic-preview { font-size: 12px; color: #86909c; margin-top: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.topic-item .unread-badge {
+  display: inline-block; min-width: 18px; height: 18px; border-radius: 9px;
+  background: #165dff; color: #fff; font-size: 11px; text-align: center; line-height: 18px; padding: 0 5px;
+}
+.topic-item .avatar-stack { display: flex; margin-top: 8px; }
+.topic-item .avatar-stack .mini-avatar {
+  width: 22px; height: 22px; border-radius: 50%; border: 2px solid #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 10px; color: #fff; font-weight: 500; margin-left: -6px;
+  background: #8ea1c1 !important;
+}
+.topic-item .avatar-stack .mini-avatar:first-child { margin-left: 0; }
+
+/* ========== 右侧详情 ========== */
+.topic-detail {
+  flex: 1; display: flex; flex-direction: column; overflow: hidden; background: #fff;
+}
+.detail-header {
+  padding: 20px 28px 16px; border-bottom: 1px solid #e5e6eb; background: #fff;
+}
+.detail-header .detail-title { font-size: 18px; font-weight: 600; margin-bottom: 8px; line-height: 1.4; }
+.detail-header .detail-info { display: flex; align-items: center; gap: 12px; font-size: 13px; color: #86909c; flex-wrap: wrap; }
+.detail-header .detail-info .tag { padding: 2px 8px; border-radius: 4px; font-size: 12px; }
+.tag-dept { background: #e8f3ff; color: #165dff; }
+.tag-type { background: #fff0e5; color: #f77234; }
+
+/* 参与人 */
+.participants { display: flex; align-items: center; gap: 4px; margin-left: 8px; }
+.participants .p-avatar {
+  width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  color: #fff; font-size: 10px; font-weight: 500; border: 2px solid #fff; margin-left: -8px;
+  background: #8ea1c1 !important;
+}
+.participants .p-avatar:first-child { margin-left: 0; }
+.participants .p-more { font-size: 12px; color: #86909c; margin-left: 4px; }
+
+/* ========== 事件脉络摘要（内联卡片，可划走） ========== */
+.milestone-inline {
+  margin: 16px 28px 0; background: #fafbfc; border: 1px solid #f2f3f5;
+  border-radius: 10px; overflow: hidden; transition: all .2s;
+}
+.milestone-inline-header {
+  display: flex; align-items: center; gap: 8px; padding: 12px 16px;
+  cursor: pointer; user-select: none; transition: background .15s;
+}
+.milestone-inline-header:hover { background: #f2f3f5; }
+.milestone-inline-icon { font-size: 15px; }
+.milestone-inline-title { font-size: 13px; font-weight: 500; color: #4e5969; flex: 1; }
+.milestone-inline-arrow {
+  font-size: 12px; color: #86909c; transition: transform .2s; display: inline-block;
+}
+.milestone-inline-arrow.collapsed { transform: rotate(-90deg); }
+.milestone-inline-body {
+  padding: 0 16px 16px; overflow: hidden; max-height: 120px; transition: max-height .3s ease, padding .3s ease;
+}
+.milestone-inline-body.collapsed {
+  max-height: 0; padding: 0 16px;
+}
+
+/* 横向里程碑 */
+.milestone-track {
+  display: flex; align-items: flex-start; gap: 0; position: relative; padding: 4px 0 0;
+}
+.milestone-node {
+  display: flex; flex-direction: column; align-items: center; flex: 1; position: relative; min-width: 0;
+}
+.milestone-dot {
+  width: 14px; height: 14px; border-radius: 50%; border: 3px solid #c9cdd4;
+  background: #fff; position: relative; z-index: 2; flex-shrink: 0;
+}
+.milestone-dot.active { border-color: #165dff; background: #165dff; }
+.milestone-dot.done { border-color: #00b42a; background: #00b42a; }
+.milestone-dot.decision { border-color: #f53f3f; background: #f53f3f; width: 18px; height: 18px; margin-top: -2px; }
+.milestone-line {
+  position: absolute; top: 7px; left: 50%; right: -50%; height: 2px;
+  background: #e5e6eb; z-index: 1;
+}
+.milestone-line.done { background: #00b42a; }
+.milestone-line.active { background: #165dff; }
+.milestone-node:last-child .milestone-line { display: none; }
+.milestone-label {
+  margin-top: 8px; font-size: 11px; color: #86909c; text-align: center;
+  line-height: 1.3; max-width: 100%; word-break: break-all;
+}
+.milestone-label.active { color: #165dff; font-weight: 600; }
+.milestone-label.done { color: #00b42a; }
+.milestone-date { font-size: 10px; color: #c9cdd4; margin-top: 2px; }
+
+.detail-body { flex: 1; overflow-y: auto; padding: 0; }
+
+/* ========== 时间轴回复区 ========== */
+.timeline-section { padding: 0 28px 0 0; }
+.timeline-replies-header {
+  padding: 16px 0 12px 28px; font-size: 14px; font-weight: 500; color: #1d2129;
+  border-bottom: 1px solid #f2f3f5; display: flex; align-items: center; justify-content: space-between;
+  padding-right: 28px;
+}
+
+/* 阶段分隔 */
+.phase-divider {
+  display: flex; align-items: center; gap: 12px; padding: 20px 0 8px 28px; padding-right: 28px;
+}
+.phase-icon {
+  width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  font-size: 14px; flex-shrink: 0;
+}
+.phase-icon.initiate { background: #e8f3ff; }
+.phase-icon.discuss { background: #fff0e5; }
+.phase-icon.decide { background: #e8ffea; }
+.phase-icon.execute { background: #e8f7ff; }
+.phase-info { flex: 1; }
+.phase-name { font-size: 13px; font-weight: 600; color: #1d2129; }
+.phase-desc { font-size: 12px; color: #86909c; margin-top: 2px; }
+.phase-line { flex: 1; height: 1px; background: #e5e6eb; }
+
+/* 时间轴容器 */
+.timeline-container {
+  position: relative; padding-left: 28px;
+}
+
+/* 时间轴竖线 */
+.timeline-rail {
+  position: absolute; left: 47px; top: 0; bottom: 0; width: 2px;
+  background: linear-gradient(to bottom, #e5e6eb 0%, #e5e6eb 100%);
+}
+
+/* 时间轴节点 */
+.tl-node {
+  position: relative; padding: 0 28px 0 44px; margin-bottom: 0;
+}
+.tl-node:last-child { margin-bottom: 24px; }
+
+/* 时间轴圆点 */
+.tl-dot {
+  position: absolute; left: 19px; top: 20px;
+  width: 10px; height: 10px; border-radius: 50%; background: #c9cdd4;
+  border: 2px solid #fff; box-shadow: 0 0 0 2px #e5e6eb; z-index: 2;
+}
+.tl-dot.author { background: #165dff; box-shadow: 0 0 0 2px #bedaff; }
+.tl-dot.tech { background: #00b42a; box-shadow: 0 0 0 2px #b9f0c8; }
+.tl-dot.biz { background: #f77234; box-shadow: 0 0 0 2px #ffe0c7; }
+.tl-dot.decision {
+  background: #fff; border: 3px solid #f53f3f; box-shadow: 0 0 0 3px #ffdbdb;
+  width: 16px; height: 16px; left: 16px; top: 17px;
+}
+.tl-dot.milestone {
+  background: #165dff; box-shadow: 0 0 0 3px #bedaff;
+  width: 14px; height: 14px; left: 17px; top: 18px;
+}
+
+/* 日期标记 */
+.tl-date-marker {
+  position: relative; padding: 16px 0 8px 44px;
+}
+.tl-date-marker .tl-date-dot {
+  position: absolute; left: 16px; top: 20px;
+  width: 16px; height: 16px; border-radius: 50%; background: #f2f3f5;
+  border: 2px solid #e5e6eb; z-index: 2;
+  display: flex; align-items: center; justify-content: center; font-size: 8px; color: #86909c;
+}
+.tl-date-text {
+  font-size: 12px; color: #c9cdd4; font-weight: 500; letter-spacing: 0.5px;
+}
+
+/* 回复卡片 */
+.tl-card {
+  background: #fff; border: 1px solid #f2f3f5; border-radius: 10px;
+  padding: 16px; margin: 6px 0; transition: all .15s;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+}
+.tl-card:hover { border-color: #e5e6eb; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+
+/* 决策卡片 */
+.tl-card.card-decision {
+  border-left: 3px solid #f53f3f; background: #fffbfa;
+}
+/* 里程碑卡片 */
+.tl-card.card-milestone {
+  border-left: 3px solid #165dff; background: #f7faff;
+}
+/* 发起卡片 */
+.tl-card.card-initiate {
+  border-left: 3px solid #7b61ff; background: #faf8ff;
+}
+
+.tl-card-header {
+  display: flex; align-items: center; gap: 10px; margin-bottom: 10px;
+}
+.tl-card-avatar {
+  width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  color: #fff; font-size: 13px; font-weight: 500; flex-shrink: 0;
+  background: #8ea1c1 !important;
+}
+.tl-card-name { font-size: 13px; font-weight: 600; color: #1d2129; }
+.tl-card-role { font-size: 12px; color: #86909c; }
+.tl-card-time { margin-left: auto; font-size: 12px; color: #c9cdd4; white-space: nowrap; }
+
+/* 贡献类型标签 */
+.contrib-tag {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 500; margin-bottom: 8px;
+}
+.contrib-initiate { background: #f3f0ff; color: #7b61ff; }
+.contrib-tech { background: #e8ffea; color: #00b42a; }
+.contrib-biz { background: #fff0e5; color: #f77234; }
+.contrib-feedback { background: #e8f3ff; color: #165dff; }
+.contrib-decision { background: #ffe8e8; color: #f53f3f; }
+.contrib-update { background: #e8f7ff; color: #0fc6c2; }
+
+.tl-card-content { font-size: 14px; line-height: 1.8; color: #4e5969; }
+.tl-card-content p { margin-bottom: 8px; }
+.tl-card-content .highlight { background: #fffce8; padding: 2px 4px; border-radius: 3px; }
+.tl-card-content ul { padding-left: 20px; margin: 6px 0; }
+.tl-card-content li { margin-bottom: 3px; }
+.tl-card-content .quote {
+  border-left: 3px solid #e5e6eb; padding: 8px 12px; margin: 8px 0;
+  background: #f7f8fa; border-radius: 0 6px 6px 0; font-size: 13px; color: #86909c;
+}
+
+/* 附件 */
+.tl-attachments { margin-top: 10px; display: flex; gap: 8px; flex-wrap: wrap; }
+.attachment {
+  display: flex; align-items: center; gap: 8px; padding: 8px 12px;
+  background: #f7f8fa; border-radius: 6px; font-size: 13px; color: #4e5969; cursor: pointer; transition: background .15s;
+}
+.attachment:hover { background: #e8f3ff; }
+.attachment .att-icon { font-size: 16px; }
+.attachment .att-size { font-size: 11px; color: #c9cdd4; }
+
+/* 卡片操作 */
+.tl-card-actions {
+  display: flex; gap: 16px; margin-top: 10px; padding-top: 8px; border-top: 1px solid #f7f8fa;
+}
+.tl-action { font-size: 12px; color: #c9cdd4; cursor: pointer; display: flex; align-items: center; gap: 3px; transition: color .15s; }
+.tl-action:hover { color: #165dff; }
+.tl-action .liked { color: #165dff; }
+
+/* 决策标记（大） */
+.decision-banner {
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 12px; background: #fff5f5; border-radius: 6px;
+  margin-bottom: 10px; font-size: 13px; font-weight: 500; color: #f53f3f;
+}
+.decision-banner .decision-icon { font-size: 18px; }
+
+/* 里程碑标记 */
+.milestone-banner {
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 12px; background: #f0f5ff; border-radius: 6px;
+  margin-bottom: 10px; font-size: 13px; font-weight: 500; color: #165dff;
+}
+
+/* 底部回复框 */
+.reply-box { padding: 12px 28px; border-top: 1px solid #e5e6eb; background: #fff; }
+.reply-input-wrap { display: flex; align-items: flex-end; gap: 10px; }
+.reply-input {
+  flex: 1; min-height: 40px; max-height: 120px; padding: 10px 14px;
+  border: 1px solid #e5e6eb; border-radius: 8px; font-size: 14px;
+  outline: none; resize: none; font-family: inherit; line-height: 1.5; transition: border-color .2s;
+}
+.reply-input:focus { border-color: #165dff; }
+.reply-toolbar { display: flex; align-items: center; gap: 12px; margin-top: 8px; }
+.toolbar-btn {
+  width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;
+  border-radius: 6px; cursor: pointer; font-size: 16px; color: #86909c; transition: all .15s;
+}
+.toolbar-btn:hover { background: #f2f3f5; color: #4e5969; }
+.send-btn {
+  padding: 8px 20px; background: #165dff; color: #fff; border: none; border-radius: 6px;
+  font-size: 14px; cursor: pointer; font-weight: 500; margin-left: auto; transition: background .15s;
+}
+.send-btn:hover { background: #0e42d2; }
+
+/* 新建主题按钮 */
+.new-topic-btn {
+  margin: 12px 16px; padding: 10px; background: #165dff; color: #fff;
+  border: none; border-radius: 8px; font-size: 14px; cursor: pointer;
+  font-weight: 500; transition: background .15s; text-align: center;
+}
+.new-topic-btn:hover { background: #0e42d2; }
+
+/* 关注按钮 */
+.follow-btn {
+  padding: 4px 12px; border: 1px solid #e5e6eb; border-radius: 14px;
+  font-size: 12px; color: #4e5969; cursor: pointer; background: #fff; transition: all .15s; white-space: nowrap;
+}
+.follow-btn:hover { border-color: #165dff; color: #165dff; }
+.follow-btn.following { background: #e8f3ff; color: #165dff; border-color: #bedaff; }
+
+/* 滚动条 */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #e5e6eb; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #c9cdd4; }
+
+/* ========== 阶段分隔线（时间轴内） ========== */
+.tl-phase {
+  position: relative; padding: 20px 0 8px 44px;
+}
+.tl-phase-dot {
+  position: absolute; left: 12px; top: 22px;
+  width: 24px; height: 24px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; z-index: 3;
+}
+.tl-phase-dot.initiate { background: #f3f0ff; }
+.tl-phase-dot.discuss { background: #fff0e5; }
+.tl-phase-dot.decide { background: #e8ffea; }
+.tl-phase-dot.execute { background: #e8f7ff; }
+.tl-phase-content {
+  display: flex; align-items: center; gap: 12px;
+}
+.tl-phase-label { font-size: 13px; font-weight: 600; color: #1d2129; }
+.tl-phase-sub { font-size: 12px; color: #86909c; }
+.tl-phase-line { flex: 1; height: 1px; background: #e5e6eb; }
+
+/* 连接线颜色覆盖 */
+.timeline-rail-segment {
+  position: absolute; left: 47px; width: 2px; z-index: 1;
+}
+
+/* 主题详情内容容器 */
+.topic-detail-content {
+  display: flex; flex-direction: column; height: 100%; overflow: hidden;
+}
+</style>
+</head>
+<body>
+
+<!-- 顶栏 -->
+<div class="top-bar">
+  <div class="logo">
+    <svg width="28" height="28" viewBox="0 0 28 28" fill="none"><rect width="28" height="28" rx="6" fill="#165dff"/><path d="M7 9h14M7 14h10M7 19h12" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg>
+    企业邮箱
+  </div>
+  <div class="tabs">
+    <div class="tab">收件箱</div>
+    <div class="tab active">主题</div>
+    <div class="tab">邮件</div>
+    <div class="tab">通讯录</div>
+  </div>
+  <div class="user-info">
+    <div class="search-box">
+      <span>🔍</span>
+      <input placeholder="搜索主题、人、内容…">
+    </div>
+    <div class="avatar">郑</div>
+  </div>
+</div>
+
+<!-- 主体 -->
+<div class="main">
+  <!-- 左侧图标导航 -->
+  <div class="sidebar">
+    <div class="nav-item active"><div class="nav-icon">📋</div><span>全部</span></div>
+    <div class="nav-item"><div class="nav-icon">⭐</div><span>关注</span></div>
+    <div class="nav-item"><div class="nav-icon">👤</div><span>我的</span></div>
+    <div class="nav-item"><div class="nav-icon">✅</div><span>已结</span></div>
+  </div>
+
+  <!-- 主题列表 -->
+  <div class="topic-list">
+    <div class="topic-list-header">
+      <h2>主题</h2>
+      <div class="topic-filter">
+        <div class="filter-tag active">全部</div>
+        <div class="filter-tag">我参与的</div>
+        <div class="filter-tag">我发起的</div>
+        <div class="filter-tag">技术讨论</div>
+        <div class="filter-tag">客户项目</div>
+        <div class="filter-tag">审批流程</div>
+      </div>
+    </div>
+    <button class="new-topic-btn">+ 发布新主题</button>
+    <div class="topic-items">
+
+      <!-- 主题 1 -->
+      <div class="topic-item active" onclick="switchTopic('topic1', this)">
+        <div class="topic-title">关于外购中性水质测量产品的引入及后续对接的沟通</div>
+        <span class="topic-status status-active">进行中</span>
+        <div class="topic-preview">林工：选型报告已更新，增加了两家备选供应商的对比…</div>
+        <div class="topic-meta">
+          <span>营销 · 流程工业 · 技术中心</span>
+          <span class="dot"></span>
+          <span>34条更新</span>
+          <span class="dot"></span>
+          <span>2小时前</span>
+          <span class="unread-badge">3</span>
+        </div>
+        <div class="avatar-stack">
+          <div class="mini-avatar" style="background:#165dff">林</div>
+          <div class="mini-avatar" style="background:#00b42a">何</div>
+          <div class="mini-avatar" style="background:#f77234">方</div>
+          <div class="mini-avatar" style="background:#7b61ff">杨</div>
+          <div class="mini-avatar" style="background:#f53f3f">+19</div>
+        </div>
+      </div>
+
+      <!-- 主题 2 -->
+      <div class="topic-item" onclick="switchTopic('topic2', this)">
+        <div class="topic-title">东海能源南京项目——温度变送器整体解决方案</div>
+        <span class="topic-status status-active">售后中</span>
+        <div class="topic-preview">售后组：现场巡检完成，3台设备需更换膜片…</div>
+        <div class="topic-meta">
+          <span>营销 · 技术 · 制造 · 售后</span>
+          <span class="dot"></span>
+          <span>38条更新</span>
+          <span class="dot"></span>
+          <span>昨天</span>
+          <span class="unread-badge">2</span>
+        </div>
+        <div class="avatar-stack">
+          <div class="mini-avatar" style="background:#f77234">唐</div>
+          <div class="mini-avatar" style="background:#00b42a">何</div>
+          <div class="mini-avatar" style="background:#165dff">吕</div>
+          <div class="mini-avatar" style="background:#7b61ff">韩</div>
+          <div class="mini-avatar" style="background:#86909c">+15</div>
+        </div>
+      </div>
+
+      <!-- 主题 3 -->
+      <div class="topic-item" onclick="selectTopic(this)">
+        <div class="topic-title">远洋重工芜湖项目——提供无石棉声明</div>
+        <span class="topic-status status-pending">待确认</span>
+        <div class="topic-preview">质量部：无石棉声明模板已拟好，需各产品线确认材料清单…</div>
+        <div class="topic-meta">
+          <span>营销 · 质量 · 离散工业</span>
+          <span class="dot"></span>
+          <span>13条更新</span>
+          <span class="dot"></span>
+          <span>昨天</span>
+        </div>
+        <div class="avatar-stack">
+          <div class="mini-avatar" style="background:#00b42a">曹</div>
+          <div class="mini-avatar" style="background:#f53f3f">谢</div>
+          <div class="mini-avatar" style="background:#165dff">魏</div>
+          <div class="mini-avatar" style="background:#86909c">+8</div>
+        </div>
+      </div>
+
+      <!-- 主题 4 -->
+      <div class="topic-item" onclick="selectTopic(this)">
+        <div class="topic-title">立格 NPT 螺纹检验标准</div>
+        <span class="topic-status status-active">进行中</span>
+        <div class="topic-preview">质量部提出新的检验基准，研发侧有不同意见…</div>
+        <div class="topic-meta">
+          <span>流程工业 · 质量管理</span>
+          <span class="dot"></span>
+          <span>14条更新</span>
+          <span class="dot"></span>
+          <span>3天前</span>
+        </div>
+      </div>
+
+      <!-- 主题 5 -->
+      <div class="topic-item" onclick="selectTopic(this)">
+        <div class="topic-title">MPM480/MDM490/MPM489 本安防爆合格证</div>
+        <span class="topic-status status-pending">待确认</span>
+        <div class="topic-preview">制造中心已转发证书，需各产线确认产品型号对应…</div>
+        <div class="topic-meta">
+          <span>制造 · 质量 · 流程工业</span>
+          <span class="dot"></span>
+          <span>12条更新</span>
+          <span class="dot"></span>
+          <span>3天前</span>
+        </div>
+      </div>
+
+      <!-- 主题 6 -->
+      <div class="topic-item" onclick="selectTopic(this)">
+        <div class="topic-title">WMS接口异常预警 & ERP报错分析</div>
+        <span class="topic-status status-active">持续追踪</span>
+        <div class="topic-preview">本周第5次告警，6/25最新预警已触发，未收敛…</div>
+        <div class="topic-meta">
+          <span>运营管理中心</span>
+          <span class="dot"></span>
+          <span>11条更新</span>
+          <span class="dot"></span>
+          <span>今天</span>
+          <span class="unread-badge">1</span>
+        </div>
+      </div>
+
+      <!-- 主题 7 -->
+      <div class="topic-item" onclick="selectTopic(this)">
+        <div class="topic-title">36所芯片外观脏污 & GS芯片规格 & 黑点处理</div>
+        <span class="topic-status status-active">进行中</span>
+        <div class="topic-preview">三个质量问题合并讨论，改善方案待供应商确认…</div>
+        <div class="topic-meta">
+          <span>质量管理部</span>
+          <span class="dot"></span>
+          <span>7条更新</span>
+          <span class="dot"></span>
+          <span>4天前</span>
+        </div>
+      </div>
+
+      <!-- 主题 8 -->
+      <div class="topic-item" onclick="selectTopic(this)">
+        <div class="topic-title">7月 IPMT 例会议题提报</div>
+        <span class="topic-status status-pending">征集中</span>
+        <div class="topic-preview">3个项目需过点评审，请各部门下周五前提报议题…</div>
+        <div class="topic-meta">
+          <span>技术中心</span>
+          <span class="dot"></span>
+          <span>7条更新</span>
+          <span class="dot"></span>
+          <span>5天前</span>
+        </div>
+      </div>
+
+      <!-- 主题 9 -->
+      <div class="topic-item" onclick="selectTopic(this)">
+        <div class="topic-title">电路板三防外协</div>
+        <span class="topic-status status-done">已完结</span>
+        <div class="topic-preview">供应商已确认，下周一送样…</div>
+        <div class="topic-meta">
+          <span>制造中心</span>
+          <span class="dot"></span>
+          <span>8条更新</span>
+          <span class="dot"></span>
+          <span>5天前</span>
+        </div>
+      </div>
+
+      <!-- 主题 10 -->
+      <div class="topic-item" onclick="selectTopic(this)">
+        <div class="topic-title">关于宝鸡市重点实验室申报的请示</div>
+        <span class="topic-status status-done">已批复</span>
+        <div class="topic-preview">董事会已审批通过，按方案执行…</div>
+        <div class="topic-meta">
+          <span>董事会办公室</span>
+          <span class="dot"></span>
+          <span>9条更新</span>
+          <span class="dot"></span>
+          <span>1周前</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 右侧详情 -->
+  <div class="topic-detail" id="topicDetail">
+
+    <!-- ============ 主题1详情 ============ -->
+    <div class="topic-detail-content" id="topic1">
+
+    <!-- 详情头部 -->
+    <div class="detail-header">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;">
+        <div class="detail-title">关于外购中性水质测量产品的引入及后续对接的沟通</div>
+        <button class="follow-btn following">✓ 已关注</button>
+      </div>
+      <div class="detail-info">
+        <span class="tag tag-dept">营销集群</span>
+        <span class="tag tag-dept">流程工业集群</span>
+        <span class="tag tag-dept">技术中心</span>
+        <span class="tag tag-type">跨部门协作</span>
+        <span>发起于 2025-06-10</span>
+        <span>·</span>
+        <span>21人参与</span>
+        <span>·</span>
+        <span>28条更新</span>
+        <div class="participants">
+          <div class="p-avatar" style="background:#165dff">林</div>
+          <div class="p-avatar" style="background:#00b42a">何</div>
+          <div class="p-avatar" style="background:#f77234">方</div>
+          <div class="p-avatar" style="background:#7b61ff">杨</div>
+          <div class="p-avatar" style="background:#f53f3f">沈</div>
+          <span class="p-more">+16人</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 详情内容 -->
+    <div class="detail-body">
+
+      <!-- 事件脉络摘要（可滚动区域内，可划走） -->
+      <div class="milestone-inline" id="milestoneInline">
+        <div class="milestone-inline-header" onclick="toggleMilestoneInline()">
+          <span class="milestone-inline-icon">📍</span>
+          <span class="milestone-inline-title">事件脉络 · 4个关键节点</span>
+          <span class="milestone-inline-arrow" id="milestoneArrow">▾</span>
+        </div>
+        <div class="milestone-inline-body" id="milestoneBody">
+          <div class="milestone-track">
+            <div class="milestone-node">
+              <div class="milestone-dot done"></div>
+              <div class="milestone-line done"></div>
+              <div class="milestone-label done">发起议题</div>
+              <div class="milestone-date">06-10</div>
+            </div>
+            <div class="milestone-node">
+              <div class="milestone-dot done"></div>
+              <div class="milestone-line done"></div>
+              <div class="milestone-label done">多方讨论</div>
+              <div class="milestone-date">06-10 ~ 06-12</div>
+            </div>
+            <div class="milestone-node">
+              <div class="milestone-dot decision"></div>
+              <div class="milestone-line active"></div>
+              <div class="milestone-label" style="color:#f53f3f;font-weight:600;">CEO 决策</div>
+              <div class="milestone-date">06-16</div>
+            </div>
+            <div class="milestone-node">
+              <div class="milestone-dot active"></div>
+              <div class="milestone-line"></div>
+              <div class="milestone-label active">执行推进中</div>
+              <div class="milestone-date">06-20 ~</div>
+            </div>
+            <div class="milestone-node">
+              <div class="milestone-dot"></div>
+              <div class="milestone-label">提交方案</div>
+              <div class="milestone-date">07-15 目标</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="timeline-section">
+        <div class="timeline-replies-header">
+          <span>28 条回复 · 4个阶段</span>
+          <span style="font-size:12px;color:#86909c;cursor:pointer;">按时间排序 ▾</span>
+        </div>
+
+        <div class="timeline-container">
+          <!-- 时间轴竖线 -->
+          <div class="timeline-rail"></div>
+
+          <!-- ====== 阶段一：发起 ====== -->
+          <div class="tl-phase">
+            <div class="tl-phase-dot initiate">🚀</div>
+            <div class="tl-phase-content">
+              <span class="tl-phase-label">发起</span>
+              <span class="tl-phase-sub">· 2025-06-10</span>
+              <div class="tl-phase-line"></div>
+            </div>
+          </div>
+
+          <!-- 主帖 -->
+          <div class="tl-node">
+            <div class="tl-dot" style="background:#7b61ff;box-shadow:0 0 0 3px #ddd6fe;width:14px;height:14px;left:17px;top:12px;"></div>
+            <div class="tl-card card-initiate">
+              <div class="tl-card-header">
+                <div class="tl-card-avatar" style="background:#165dff">林</div>
+                <div>
+                  <div class="tl-card-name">林志远 <span style="font-size:12px;color:#86909c;font-weight:400;">发起了主题</span></div>
+                  <div class="tl-card-role">营销集群 · 华南战区 · 部门经理</div>
+                </div>
+                <div class="tl-card-time">06-10 09:32</div>
+              </div>
+              <div class="contrib-tag contrib-initiate">🚀 发起议题</div>
+              <div class="tl-card-content">
+                <p>各位同事好，</p>
+                <p>近期多个客户项目反馈需要<span class="highlight">中性水质测量</span>相关产品，目前我们自研产品线尚未覆盖这一细分领域。经与多个潜在供应商初步沟通，建议考虑<strong>外购方案</strong>：</p>
+                <ul>
+                  <li>客户需求：瑞恒科技、远洋重工等多个项目均有水质测量需求</li>
+                  <li>备选供应商：A 厂（国产，性价比高），B 厂（进口，精度优）</li>
+                  <li>需确认事项：技术规格对标、定价策略、合作模式</li>
+                </ul>
+                <p>请技术中心评估选型方案，营销各区域确认客户需求优先级，流程工业事业部确认产能对接。</p>
+                <p><strong>期望下周五前完成首轮评估。</strong></p>
+              </div>
+              <div class="tl-attachments">
+                <div class="attachment"><span class="att-icon">📊</span><span>水质测量产品选型对比.xlsx</span><span class="att-size">2.3 MB</span></div>
+                <div class="attachment"><span class="att-icon">📄</span><span>供应商A技术规格书.pdf</span><span class="att-size">1.1 MB</span></div>
+                <div class="attachment"><span class="att-icon">📄</span><span>供应商B报价单.pdf</span><span class="att-size">0.8 MB</span></div>
+              </div>
+              <div class="tl-card-actions">
+                <span class="tl-action">👍 9</span>
+                <span class="tl-action">💬 回复</span>
+                <span class="tl-action">📌 收藏</span>
+                <span class="tl-action">↗️ 转发</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- ====== 阶段二：多方讨论 ====== -->
+          <div class="tl-phase">
+            <div class="tl-phase-dot discuss">💬</div>
+            <div class="tl-phase-content">
+              <span class="tl-phase-label">多方讨论</span>
+              <span class="tl-phase-sub">· 06-10 ~ 06-12 · 3人参与讨论</span>
+              <div class="tl-phase-line"></div>
+            </div>
+          </div>
+
+          <!-- 回复1：技术评估 -->
+          <div class="tl-node">
+            <div class="tl-dot tech"></div>
+            <div class="tl-card">
+              <div class="tl-card-header">
+                <div class="tl-card-avatar" style="background:#00b42a">李</div>
+                <div>
+                  <div class="tl-card-name">李旸</div>
+                  <div class="tl-card-role">技术中心 · 产品测试高级工程师</div>
+                </div>
+                <div class="tl-card-time">06-10 14:20</div>
+              </div>
+              <div class="contrib-tag contrib-tech">🔬 技术评估</div>
+              <div class="tl-card-content">
+                <p>收到，技术中心这边先做个初步评估。有几个点需要确认：</p>
+                <p>1. 精度要求是 ±0.5% 还是 ±0.25%？不同客户项目差异大<br>
+                2. 供应商A的防护等级偏低，室外场景可能有风险<br>
+                3. 建议把<strong>供应商C（德国Endress+Hauser）</strong>也纳入对比范围</p>
+                <p>我周三前出评估报告初稿。</p>
+              </div>
+              <div class="tl-card-actions">
+                <span class="tl-action">👍 8</span>
+                <span class="tl-action">💬 回复</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 回复2：业务补充 -->
+          <div class="tl-node">
+            <div class="tl-dot biz"></div>
+            <div class="tl-card">
+              <div class="tl-card-header">
+                <div class="tl-card-avatar" style="background:#f77234">陈</div>
+                <div>
+                  <div class="tl-card-name">陈国华</div>
+                  <div class="tl-card-role">流程工业 · 首席工程师</div>
+                </div>
+                <div class="tl-card-time">06-10 16:45</div>
+              </div>
+              <div class="contrib-tag contrib-biz">📋 业务补充</div>
+              <div class="tl-card-content">
+                <p>同意李旸的意见，补充一个重要信息：</p>
+                <p>流程工业这边有<strong>3个在谈项目</strong>涉及水质测量，其中汇川技术的需求最急，预计8月份要出方案。如果走外购，<span class="highlight">供应链交期必须控制在6周以内</span>，否则来不及。</p>
+              </div>
+              <div class="tl-attachments">
+                <div class="attachment"><span class="att-icon">📊</span><span>在谈项目水质需求汇总.xlsx</span><span class="att-size">0.5 MB</span></div>
+              </div>
+              <div class="tl-card-actions">
+                <span class="tl-action">👍 6</span>
+                <span class="tl-action">💬 回复</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 日期标记 -->
+          <div class="tl-date-marker">
+            <div class="tl-date-dot">📅</div>
+            <div class="tl-date-text">2025-06-12</div>
+          </div>
+
+          <!-- 回复3：销售反馈 -->
+          <div class="tl-node">
+            <div class="tl-dot" style="background:#7b61ff;box-shadow:0 0 0 2px #ddd6fe;"></div>
+            <div class="tl-card">
+              <div class="tl-card-header">
+                <div class="tl-card-avatar" style="background:#7b61ff">赵</div>
+                <div>
+                  <div class="tl-card-name">赵祥</div>
+                  <div class="tl-card-role">营销集群 · 销售经理</div>
+                </div>
+                <div class="tl-card-time">06-12 10:15</div>
+              </div>
+              <div class="contrib-tag contrib-feedback">📣 销售反馈</div>
+              <div class="tl-card-content">
+                <p>华东战区这边也有客户在问，上海科系思和 WEUPU Connector 都提了水质传感器需求。优先级排在汇川后面，但量不小。</p>
+                <p>另外，客户比较在意<strong>售后响应速度</strong>——外购产品如果售后靠供应商，响应时效可能是个问题。建议把这个纳入评估维度。</p>
+              </div>
+              <div class="tl-card-actions">
+                <span class="tl-action">👍 5</span>
+                <span class="tl-action">💬 回复</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 回复4：方案建议 -->
+          <div class="tl-node">
+            <div class="tl-dot" style="background:#f53f3f;box-shadow:0 0 0 2px #ffdbdb;"></div>
+            <div class="tl-card">
+              <div class="tl-card-header">
+                <div class="tl-card-avatar" style="background:#f53f3f">沈</div>
+                <div>
+                  <div class="tl-card-name">沈子涵</div>
+                  <div class="tl-card-role">营销集群 · 华东战区 · 销售工程师</div>
+                </div>
+                <div class="tl-card-time">06-12 11:30</div>
+              </div>
+              <div class="contrib-tag contrib-feedback">💡 方案建议</div>
+              <div class="tl-card-content">
+                <div class="quote">杨锐峰：客户比较在意售后响应速度</div>
+                <p>+1，苏州明达那边明确说了要求4小时响应。如果供应商在本地没有服务团队，建议我们自建一级售后能力，重大问题再转供应商。</p>
+              </div>
+              <div class="tl-card-actions">
+                <span class="tl-action">👍 3</span>
+                <span class="tl-action">💬 回复</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- ====== 阶段三：决策 ====== -->
+          <div class="tl-phase">
+            <div class="tl-phase-dot decide">⚡</div>
+            <div class="tl-phase-content">
+              <span class="tl-phase-label">决策</span>
+              <span class="tl-phase-sub">· 06-16 · CEO 拍板</span>
+              <div class="tl-phase-line"></div>
+            </div>
+          </div>
+
+          <!-- 回复5：CEO决策 -->
+          <div class="tl-node">
+            <div class="tl-dot decision"></div>
+            <div class="tl-card card-decision">
+              <div class="tl-card-header">
+                <div class="tl-card-avatar" style="background:#1d2129">郑</div>
+                <div>
+                  <div class="tl-card-name">郑总</div>
+                  <div class="tl-card-role">CEO</div>
+                </div>
+                <div class="tl-card-time">06-16 09:00</div>
+              </div>
+              <div class="decision-banner">
+                <span class="decision-icon">📌</span>
+                <span>决策结论</span>
+              </div>
+              <div class="tl-card-content">
+                <p>看了评估报告和各方反馈，几点意见：</p>
+                <p>1. <strong>外购方向确认</strong>，先跑通供应商A的流程，同步接触供应商C<br>
+                2. 售后问题——我同意沈子涵的建议，<strong>我们自建一级售后</strong>，保证客户体验<br>
+                3. 瑞恒科技项目优先推进，下个月出样品方案</p>
+                <p>林志远牵头，技术中心配合，<strong>7月15日前出完整合作方案</strong>。</p>
+              </div>
+              <div class="tl-card-actions">
+                <span class="tl-action"><span class="liked">👍</span> 11</span>
+                <span class="tl-action">💬 回复</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- ====== 阶段四：执行推进 ====== -->
+          <div class="tl-phase">
+            <div class="tl-phase-dot execute">🔄</div>
+            <div class="tl-phase-content">
+              <span class="tl-phase-label">执行推进</span>
+              <span class="tl-phase-sub">· 06-20 ~ 进行中 · 目标 07-15</span>
+              <div class="tl-phase-line"></div>
+            </div>
+          </div>
+
+          <!-- 回复6：进展更新 -->
+          <div class="tl-node">
+            <div class="tl-dot milestone"></div>
+            <div class="tl-card card-milestone">
+              <div class="tl-card-header">
+                <div class="tl-card-avatar" style="background:#165dff">林</div>
+                <div>
+                  <div class="tl-card-name">林志远</div>
+                  <div class="tl-card-role">营销集群 · 华南战区 · 部门经理</div>
+                </div>
+                <div class="tl-card-time">06-20 15:40</div>
+              </div>
+              <div class="contrib-tag contrib-update">📊 进展更新</div>
+              <div class="milestone-banner">
+                <span>🏁</span>
+                <span>第一周执行进展</span>
+              </div>
+              <div class="tl-card-content">
+                <p>各位，同步下最新进展：</p>
+                <p style="line-height:2.2;">
+                  <span style="display:inline-flex;align-items:center;gap:4px;background:#e8ffea;padding:2px 8px;border-radius:4px;color:#00b42a;font-size:13px;margin-right:4px;">✅ 已完成</span> 供应商A已完成首轮技术交底，规格基本满足<br>
+                  <span style="display:inline-flex;align-items:center;gap:4px;background:#e8ffea;padding:2px 8px;border-radius:4px;color:#00b42a;font-size:13px;margin-right:4px;">✅ 已完成</span> 供应商C（Sensirion）已约下周三视频会<br>
+                  <span style="display:inline-flex;align-items:center;gap:4px;background:#fff7e8;padding:2px 8px;border-radius:4px;color:#ff7d00;font-size:13px;margin-right:4px;">⏳ 进行中</span> 售后方案何明辉在拟，预计本周五完成<br>
+                  <span style="display:inline-flex;align-items:center;gap:4px;background:#fff7e8;padding:2px 8px;border-radius:4px;color:#ff7d00;font-size:13px;margin-right:4px;">⏳ 进行中</span> 瑞恒项目现场勘察安排在下周一
+                </p>
+              </div>
+              <div class="tl-attachments">
+                <div class="attachment"><span class="att-icon">📊</span><span>选型报告V2（含供应商C）.xlsx</span><span class="att-size">2.8 MB</span></div>
+              </div>
+              <div style="margin-top:12px;padding:10px 14px;background:#f0f5ff;border-radius:6px;display:flex;align-items:center;gap:8px;">
+                <span style="font-size:16px;">📅</span>
+                <span style="font-size:13px;color:#165dff;font-weight:500;">下一个里程碑：7月15日提交完整合作方案</span>
+              </div>
+              <div class="tl-card-actions">
+                <span class="tl-action">👍 7</span>
+                <span class="tl-action">💬 回复</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 回复7：补充进展 -->
+          <div class="tl-node">
+            <div class="tl-dot tech"></div>
+            <div class="tl-card">
+              <div class="tl-card-header">
+                <div class="tl-card-avatar" style="background:#00b42a">何</div>
+                <div>
+                  <div class="tl-card-name">何明辉</div>
+                  <div class="tl-card-role">技术中心 · 产品测试高级工程师</div>
+                </div>
+                <div class="tl-card-time">06-21 10:05</div>
+              </div>
+              <div class="contrib-tag contrib-tech">🔬 技术反馈</div>
+              <div class="tl-card-content">
+                <p>售后方案初稿已完成，核心方案：</p>
+                <p>1. <strong>一级售后我们自建</strong>：常规维护、参数校准、现场排障 → 4小时响应<br>
+                2. <strong>二级售后转供应商</strong>：硬件故障、固件升级 → 48小时响应<br>
+                3. 备件方面，建议首批备货 15% 冗余</p>
+                <p>方案文件已放在附件，请 @林志远 @杨锐峰 确认是否满足客户要求。</p>
+              </div>
+              <div class="tl-attachments">
+                <div class="attachment"><span class="att-icon">📄</span><span>水质测量产品售后方案V1.pdf</span><span class="att-size">0.9 MB</span></div>
+              </div>
+              <div class="tl-card-actions">
+                <span class="tl-action">👍 5</span>
+                <span class="tl-action">💬 回复</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 回复8：现场反馈 -->
+          <div class="tl-node">
+            <div class="tl-dot biz"></div>
+            <div class="tl-card">
+              <div class="tl-card-header">
+                <div class="tl-card-avatar" style="background:#165dff">林</div>
+                <div>
+                  <div class="tl-card-name">林志远</div>
+                  <div class="tl-card-role">营销集群 · 华南战区 · 部门经理</div>
+                </div>
+                <div class="tl-card-time">06-23 18:20</div>
+              </div>
+              <div class="contrib-tag contrib-update">📊 现场反馈</div>
+              <div class="tl-card-content">
+                <p>瑞恒科技现场勘察完成，关键信息：</p>
+                <p>1. 安装环境：室外敞开式，<span class="highlight">需 IP67 以上防护等级</span> → 供应商A不达标，供应商C满足<br>
+                2. 接口：需要支持 HART 和 Modbus 双协议<br>
+                3. 客户表示如果7月底前能出样品，可以安排8月试运行</p>
+                <p><strong>建议：优先级调整为供应商C为主，供应商A做备选。</strong></p>
+              </div>
+              <div class="tl-attachments">
+                <div class="attachment"><span class="att-icon">📷</span><span>瑞恒现场照片（9张）.zip</span><span class="att-size">12.6 MB</span></div>
+                <div class="attachment"><span class="att-icon">📄</span><span>现场勘察报告.pdf</span><span class="att-size">1.8 MB</span></div>
+              </div>
+              <div class="tl-card-actions">
+                <span class="tl-action">👍 8</span>
+                <span class="tl-action">💬 回复</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 日期标记 -->
+          <div class="tl-date-marker">
+            <div class="tl-date-dot">📅</div>
+            <div class="tl-date-text">2025-06-25 · 今天</div>
+          </div>
+
+          <!-- 回复9：最新进展 -->
+          <div class="tl-node">
+            <div class="tl-dot milestone"></div>
+            <div class="tl-card card-milestone">
+              <div class="tl-card-header">
+                <div class="tl-card-avatar" style="background:#165dff">王</div>
+                <div>
+                  <div class="tl-card-name">王文飞</div>
+                  <div class="tl-card-role">营销集群 · 华南战区 · 部门经理</div>
+                </div>
+                <div class="tl-card-time">今天 14:30</div>
+              </div>
+              <div class="contrib-tag contrib-update">📊 周进展汇总</div>
+              <div class="tl-card-content">
+                <p>第二周进展汇总 @张总 @李旸 @陈国华：</p>
+                <p style="line-height:2.2;">
+                  <span style="display:inline-flex;align-items:center;gap:4px;background:#e8ffea;padding:2px 8px;border-radius:4px;color:#00b42a;font-size:13px;margin-right:4px;">✅ 已完成</span> 供应商C视频会已开完，报价+交期已确认<br>
+                  <span style="display:inline-flex;align-items:center;gap:4px;background:#e8ffea;padding:2px 8px;border-radius:4px;color:#00b42a;font-size:13px;margin-right:4px;">✅ 已完成</span> 汇川现场勘察完成，IP67 → 选供应商C<br>
+                  <span style="display:inline-flex;align-items:center;gap:4px;background:#e8ffea;padding:2px 8px;border-radius:4px;color:#00b42a;font-size:13px;margin-right:4px;">✅ 已完成</span> 售后方案V1已出，4h一级响应+48h二级响应<br>
+                  <span style="display:inline-flex;align-items:center;gap:4px;background:#fff7e8;padding:2px 8px;border-radius:4px;color:#ff7d00;font-size:13px;margin-right:4px;">⏳ 待启动</span> 供应商C合同条款&商务谈判<br>
+                  <span style="display:inline-flex;align-items:center;gap:4px;background:#fff7e8;padding:2px 8px;border-radius:4px;color:#ff7d00;font-size:13px;margin-right:4px;">⏳ 待启动</span> 样品订购 & 8月试运行对接
+                </p>
+                <p><strong>整体进度 65%，按节奏推进中，预计7月15日可提交合作方案。</strong></p>
+              </div>
+              <div style="margin-top:12px;padding:10px 14px;background:#f0f5ff;border-radius:6px;">
+                <div style="font-size:13px;color:#165dff;font-weight:500;margin-bottom:6px;">📅 接下来的关键节点</div>
+                <div style="font-size:13px;color:#4e5969;line-height:1.8;">
+                  · 6月30日：供应商C商务条款确认<br>
+                  · 7月7日：样品订单下达<br>
+                  · 7月15日：完整合作方案提交 CEO 审批<br>
+                  · 8月初：汇川项目试运行启动
+                </div>
+              </div>
+              <div class="tl-card-actions">
+                <span class="tl-action">👍 9</span>
+                <span class="tl-action">💬 回复</span>
+                <span class="tl-action">📌 收藏</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 底部间距 -->
+          <div style="height:24px;"></div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- 底部回复框 -->
+    <div class="reply-box">
+      <div class="reply-input-wrap">
+        <textarea class="reply-input" placeholder="回复这个主题… 可 @人、插入附件" rows="1"></textarea>
+      </div>
+      <div class="reply-toolbar">
+        <div class="toolbar-btn" title="@提及">@</div>
+        <div class="toolbar-btn" title="附件">📎</div>
+        <div class="toolbar-btn" title="表情">😊</div>
+        <div class="toolbar-btn" title="投票">📊</div>
+        <div class="toolbar-btn" title="待办">☑️</div>
+        <div class="toolbar-btn" title="标记进展">🏁</div>
+        <button class="send-btn">发送</button>
+      </div>
+    </div>
+
+    </div><!-- /topic1 -->
+
+    <!-- ============ 主题2详情：东海能源南京项目 ============ -->
+    <div class="topic-detail-content" id="topic2" style="display:none;">
+
+    <!-- 详情头部 -->
+    <div class="detail-header">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;">
+        <div class="detail-title">东海能源南京项目——温度变送器整体解决方案</div>
+        <button class="follow-btn following">✓ 已关注</button>
+      </div>
+      <div class="detail-info">
+        <span class="tag tag-dept">营销集群</span>
+        <span class="tag tag-dept">技术中心</span>
+        <span class="tag tag-dept">制造中心</span>
+        <span class="tag tag-dept">售后服务</span>
+        <span class="tag tag-type">客户项目</span>
+        <span>发起于 2025-03-05</span>
+        <span>·</span>
+        <span>18人参与</span>
+        <span>·</span>
+        <span>38条更新</span>
+        <div class="participants">
+          <div class="p-avatar" style="background:#f77234">唐</div>
+          <div class="p-avatar" style="background:#00b42a">何</div>
+          <div class="p-avatar" style="background:#165dff">吕</div>
+          <div class="p-avatar" style="background:#7b61ff">韩</div>
+          <div class="p-avatar" style="background:#f53f3f">曹</div>
+          <span class="p-more">+13人</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 详情内容 -->
+    <div class="detail-body">
+
+      <!-- 事件脉络 -->
+      <div class="milestone-inline">
+        <div class="milestone-inline-header" onclick="this.nextElementSibling.classList.toggle('collapsed');this.querySelector('.milestone-inline-arrow').classList.toggle('collapsed');">
+          <span class="milestone-inline-icon">📍</span>
+          <span class="milestone-inline-title">事件脉络 · 6个关键节点 · 历时4个月</span>
+          <span class="milestone-inline-arrow">▾</span>
+        </div>
+        <div class="milestone-inline-body">
+          <div class="milestone-track">
+            <div class="milestone-node">
+              <div class="milestone-dot done"></div>
+              <div class="milestone-line done"></div>
+              <div class="milestone-label done">商机发现</div>
+              <div class="milestone-date">03-05</div>
+            </div>
+            <div class="milestone-node">
+              <div class="milestone-dot done"></div>
+              <div class="milestone-line done"></div>
+              <div class="milestone-label done">技术洽谈</div>
+              <div class="milestone-date">03-10 ~ 03-28</div>
+            </div>
+            <div class="milestone-node">
+              <div class="milestone-dot done"></div>
+              <div class="milestone-line done"></div>
+              <div class="milestone-label done">签约合作</div>
+              <div class="milestone-date">04-08</div>
+            </div>
+            <div class="milestone-node">
+              <div class="milestone-dot done"></div>
+              <div class="milestone-line done"></div>
+              <div class="milestone-label done">交付实施</div>
+              <div class="milestone-date">04-15 ~ 05-20</div>
+            </div>
+            <div class="milestone-node">
+              <div class="milestone-dot done"></div>
+              <div class="milestone-line done"></div>
+              <div class="milestone-label done">验收通过</div>
+              <div class="milestone-date">05-28</div>
+            </div>
+            <div class="milestone-node">
+              <div class="milestone-dot active"></div>
+              <div class="milestone-label active">售后服务中</div>
+              <div class="milestone-date">06-01 ~</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="timeline-section">
+        <div class="timeline-replies-header">
+          <span>38 条回复 · 6个阶段</span>
+          <span style="font-size:12px;color:#86909c;cursor:pointer;">按时间排序 ▾</span>
+        </div>
+
+        <div class="timeline-container">
+          <div class="timeline-rail"></div>
+
+          <!-- ====== 阶段一：商机发现 ====== -->
+          <div class="tl-phase">
+            <div class="tl-phase-dot initiate">🎯</div>
+            <div class="tl-phase-content">
+              <span class="tl-phase-label">商机发现</span>
+              <span class="tl-phase-sub">· 2025-03-05</span>
+              <div class="tl-phase-line"></div>
+            </div>
+          </div>
+
+          <div class="tl-node">
+            <div class="tl-dot" style="background:#7b61ff;box-shadow:0 0 0 3px #ddd6fe;width:14px;height:14px;left:17px;top:12px;"></div>
+            <div class="tl-card card-initiate">
+              <div class="tl-card-header">
+                <div class="tl-card-avatar" style="background:#f77234">唐</div>
+                <div>
+                  <div class="tl-card-name">唐俊杰 <span style="font-size:12px;color:#86909c;font-weight:400;">发起了主题</span></div>
+                  <div class="tl-card-role">营销集群 · 华中战区 · 客户经理</div>
+                </div>
+                <div class="tl-card-time">03-05 09:15</div>
+              </div>
+              <div class="contrib-tag contrib-initiate">🎯 商机录入</div>
+              <div class="tl-card-content">
+                <p>各位，东海能源南京热电厂有一个大项目机会：</p>
+                <p><strong>项目背景：</strong>南京热电厂2号机组DCS改造，需要更换全部温度/热电偶变送器，原来用的是 Yokogawa EJA，这次甲方想引入国产替代方案。</p>
+                <ul>
+                  <li>需求量：<span class="highlight">温度变送器 72台 + 热电偶变送器 46台</span>，共118台</li>
+                  <li>预算区间：约 <strong>240-280万</strong></li>
+                  <li>交付时间：要求6月底前全部到货安装</li>
+                  <li>甲方联系人：周工（仪表主管），已初步沟通过我们的产品线</li>
+                </ul>
+                <p>请 @技术中心 出选型方案，@制造中心 确认产能和交期。这个项目如果拿下，对华中战区Q2指标影响很大。</p>
+              </div>
+              <div class="tl-attachments">
+                <div class="attachment"><span class="att-icon">📄</span><span>东海能源南京项目需求书.pdf</span><span class="att-size">3.2 MB</span></div>
+                <div class="attachment"><span class="att-icon">📊</span><span>竞品对标分析（Yokogawa EJA）.xlsx</span><span class="att-size">1.0 MB</span></div>
+              </div>
+              <div class="tl-card-actions">
+                <span class="tl-action">👍 11</span>
+                <span class="tl-action">💬 回复</span>
+                <span class="tl-action">📌 收藏</span>
+                <span class="tl-action">↗️ 转发</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- ====== 阶段二：技术洽谈 ====== -->
+          <div class="tl-phase">
+            <div class="tl-phase-dot discuss">💬</div>
+            <div class="tl-phase-content">
+              <span class="tl-phase-label">技术洽谈</span>
+              <span class="tl-phase-sub">· 03-10 ~ 03-28 · 5人参与</span>
+              <div class="tl-phase-line"></div>
+            </div>
+          </div>
+
+          <div class="tl-node">
+            <div class="tl-dot tech"></div>
+            <div class="tl-card">
+              <div class="tl-card-header">
+                <div class="tl-card-avatar" style="background:#00b42a">李</div>
+                <div>
+                  <div class="tl-card-name">李旸</div>
+                  <div class="tl-card-role">技术中心 · 产品测试高级工程师</div>
+                </div>
+                <div class="tl-card-time">03-10 11:20</div>
+              </div>
+              <div class="contrib-tag contrib-tech">🔬 选型方案</div>
+              <div class="tl-card-content">
+                <p>选型方案初稿完成。针对 Rosemount 3051 替代，推荐我们的 <strong>MPM4730 系列</strong>：</p>
+                <p>1. 精度 ±0.075%，与3051的 ±0.065% 差距可接受<br>
+                2. 量程覆盖 0-40MPa，满足电厂所有工位<br>
+                3. <span class="highlight">关键优势：支持 HART 7.0 协议</span>，DCS可直接切换<br>
+                4. 价格优势明显：单台均价约 ¥1.8w vs Rosemount ¥3.2w</p>
+                <p>但有一个风险点：<strong>高温蒸汽工位</strong>（3台）需要特殊膜片，这个我们标准品不覆盖，需要定制。</p>
+              </div>
+              <div class="tl-attachments">
+                <div class="attachment"><span class="att-icon">📊</span><span>MPM4730选型方案（华润郑州）.xlsx</span><span class="att-size">2.8 MB</span></div>
+                <div class="attachment"><span class="att-icon">📄</span><span>MPM4730 vs 3051 对标报告.pdf</span><span class="att-size">1.5 MB</span></div>
+              </div>
+              <div class="tl-card-actions">
+                <span class="tl-action">👍 10</span>
+                <span class="tl-action">💬 回复</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="tl-node">
+            <div class="tl-dot biz"></div>
+            <div class="tl-card">
+              <div class="tl-card-header">
+                <div class="tl-card-avatar" style="background:#165dff">刘</div>
+                <div>
+                  <div class="tl-card-name">刘伟</div>
+                  <div class="tl-card-role">制造中心 · 生产计划主管</div>
+                </div>
+                <div class="tl-card-time">03-12 09:30</div>
+              </div>
+              <div class="contrib-tag contrib-biz">🏭 产能确认</div>
+              <div class="tl-card-content">
+                <p>产能方面回复：</p>
+                <p>1. 标准品 135台：<strong>产线有余量</strong>，排产后4周可交<br>
+                2. 高温特制膜片 3台：需联系膜片供应商定制，<span class="highlight">交期预计6-8周</span><br>
+                3. 建议分批交付——标准品先发，特制品后补</p>
+                <p>提醒：如果4月中旬前确认订单，6月底全部交付有把握。再晚就紧了。</p>
+              </div>
+              <div class="tl-card-actions">
+                <span class="tl-action">👍 6</span>
+                <span class="tl-action">💬 回复</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 日期标记 -->
+          <div class="tl-date-marker">
+            <div class="tl-date-dot">📅</div>
+            <div class="tl-date-text">2025-03-18</div>
+          </div>
+
+          <div class="tl-node">
+            <div class="tl-dot" style="background:#f77234;box-shadow:0 0 0 2px #ffe0c7;"></div>
+            <div class="tl-card">
+              <div class="tl-card-header">
+                <div class="tl-card-avatar" style="background:#f77234">唐</div>
+                <div>
+                  <div class="tl-card-name">唐俊杰</div>
+                  <div class="tl-card-role">营销集群 · 华中战区 · 客户经理</div>
+                </div>
+                <div class="tl-card-time">03-18 17:40</div>
+              </div>
+              <div class="contrib-tag contrib-feedback">📣 客户反馈</div>
+              <div class="tl-card-content">
+                <p>刚从甲方回来，同步几个关键信息：</p>
+                <p>1. 甲方<strong>技术评审通过</strong>了我们的选型方案 ✅<br>
+                2. 周工特别认可 HART 7.0 的兼容性，说这是选我们的关键原因<br>
+                3. 但商务上有压力——<span class="highlight">竞标方光华仪表报价比我们低6%</span><br>
+                4. 甲方要求我们再降3%，并且增加<strong>2年质保</strong>（我们标准是1年）</p>
+                <p>@郑总 这个价格空间和延保政策需要您拍板。</p>
+              </div>
+              <div class="tl-card-actions">
+                <span class="tl-action">👍 8</span>
+                <span class="tl-action">💬 回复</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="tl-node">
+            <div class="tl-dot" style="background:#7b61ff;box-shadow:0 0 0 2px #ddd6fe;"></div>
+            <div class="tl-card">
+              <div class="tl-card-header">
+                <div class="tl-card-avatar" style="background:#7b61ff">钱</div>
+                <div>
+                  <div class="tl-card-name">钱芳</div>
+                  <div class="tl-card-role">营销集群 · 商务经理</div>
+                </div>
+                <div class="tl-card-time">03-20 10:00</div>
+              </div>
+              <div class="contrib-tag contrib-feedback">💰 商务方案</div>
+              <div class="tl-card-content">
+                <p>我拉了一版商务优化方案：</p>
+                <p>1. 单价降3%（不是5%），通过<strong>打包服务费</strong>补回利润<br>
+                2. 质保延长到2年，但附加条件：甲方需购买<strong>年度巡检服务</strong>（¥8万/年）<br>
+                3. 这样总合同额约 ¥295万，毛利还能守住 38%</p>
+                <p>如果张总同意，我准备下周一正式报价。</p>
+              </div>
+              <div class="tl-attachments">
+                <div class="attachment"><span class="att-icon">📊</span><span>商务报价方案（华润郑州V2）.xlsx</span><span class="att-size">0.8 MB</span></div>
+              </div>
+              <div class="tl-card-actions">
+                <span class="tl-action">👍 9</span>
+                <span class="tl-action">💬 回复</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- ====== 阶段三：签约合作 ====== -->
+          <div class="tl-phase">
+            <div class="tl-phase-dot decide">⚡</div>
+            <div class="tl-phase-content">
+              <span class="tl-phase-label">签约合作</span>
+              <span class="tl-phase-sub">· 04-08 · 合同签署</span>
+              <div class="tl-phase-line"></div>
+            </div>
+          </div>
+
+          <div class="tl-node">
+            <div class="tl-dot decision"></div>
+            <div class="tl-card card-decision">
+              <div class="tl-card-header">
+                <div class="tl-card-avatar" style="background:#1d2129">张</div>
+                <div>
+                  <div class="tl-card-name">张总</div>
+                  <div class="tl-card-role">CEO</div>
+                </div>
+                <div class="tl-card-time">03-25 09:00</div>
+              </div>
+              <div class="decision-banner">
+                <span class="decision-icon">📌</span>
+                <span>商务决策</span>
+              </div>
+              <div class="tl-card-content">
+                <p>同意钱芳的方案，补充两点：</p>
+                <p>1. <strong>降价3%可以</strong>，但要锁定后续2号、3号机组优先供货权<br>
+                2. 巡检服务是好思路，让售后部门提前做服务方案<br>
+                3. 这个项目是<strong>华中战区标杆</strong>，做好了后面华润系统内可以复制</p>
+                <p>赵明尽快推进签约。</p>
+              </div>
+              <div class="tl-card-actions">
+                <span class="tl-action"><span class="liked">👍</span> 18</span>
+                <span class="tl-action">💬 回复</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 日期标记 -->
+          <div class="tl-date-marker">
+            <div class="tl-date-dot">📅</div>
+            <div class="tl-date-text">2025-04-08</div>
+          </div>
+
+          <div class="tl-node">
+            <div class="tl-dot milestone"></div>
+            <div class="tl-card card-milestone">
+              <div class="tl-card-header">
+                <div class="tl-card-avatar" style="background:#f77234">赵</div>
+                <div>
+                  <div class="tl-card-name">赵明</div>
+                  <div class="tl-card-role">营销集群 · 华中战区 · 客户经理</div>
+                </div>
+                <div class="tl-card-time">04-08 16:30</div>
+              </div>
+              <div class="milestone-banner">
+                <span>🎉</span>
+                <span>合同签署完成</span>
+              </div>
+              <div class="tl-card-content">
+                <p>好消息！<strong>合同已正式签署</strong> 🎉</p>
+                <p>合同关键信息：</p>
+                <ul>
+                  <li>合同额：<strong>¥295.6万</strong>（含2年巡检服务）</li>
+                  <li>设备交付：6月20日前全部到场</li>
+                  <li>付款方式：3-6-1（预付30%、到货60%、验收10%）</li>
+                  <li>已锁定后续2号、3号机组优先供货权 ✅</li>
+                </ul>
+                <p>预付款 ¥88.7万 预计下周到账。请 @刘伟 安排排产，@李旸 准备技术交底资料。</p>
+              </div>
+              <div class="tl-attachments">
+                <div class="attachment"><span class="att-icon">📄</span><span>华润电力郑州采购合同（已签章）.pdf</span><span class="att-size">5.2 MB</span></div>
+              </div>
+              <div class="tl-card-actions">
+                <span class="tl-action"><span class="liked">👍</span> 22</span>
+                <span class="tl-action">💬 回复</span>
+                <span class="tl-action">📌 收藏</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- ====== 阶段四：交付实施 ====== -->
+          <div class="tl-phase">
+            <div class="tl-phase-dot execute">🔄</div>
+            <div class="tl-phase-content">
+              <span class="tl-phase-label">交付实施</span>
+              <span class="tl-phase-sub">· 04-15 ~ 05-20 · 生产→发货→安装调试</span>
+              <div class="tl-phase-line"></div>
+            </div>
+          </div>
+
+          <div class="tl-node">
+            <div class="tl-dot biz"></div>
+            <div class="tl-card">
+              <div class="tl-card-header">
+                <div class="tl-card-avatar" style="background:#165dff">刘</div>
+                <div>
+                  <div class="tl-card-name">刘伟</div>
+                  <div class="tl-card-role">制造中心 · 生产计划主管</div>
+                </div>
+                <div class="tl-card-time">04-15 14:00</div>
+              </div>
+              <div class="contrib-tag contrib-update">🏭 生产排产</div>
+              <div class="tl-card-content">
+                <p>排产计划已确认：</p>
+                <p style="line-height:2.2;">
+                  <span style="display:inline-flex;align-items:center;gap:4px;background:#e8ffea;padding:2px 8px;border-radius:4px;color:#00b42a;font-size:13px;margin-right:4px;">✅ 第1批</span> 压力变送器86台 → 5月5日出厂<br>
+                  <span style="display:inline-flex;align-items:center;gap:4px;background:#e8ffea;padding:2px 8px;border-radius:4px;color:#00b42a;font-size:13px;margin-right:4px;">✅ 第2批</span> 差压变送器49台 → 5月12日出厂<br>
+                  <span style="display:inline-flex;align-items:center;gap:4px;background:#fff7e8;padding:2px 8px;border-radius:4px;color:#ff7d00;font-size:13px;margin-right:4px;">⏳ 第3批</span> 高温特制膜片3台 → 5月28日出厂（供应商已确认）
+                </p>
+              </div>
+              <div class="tl-card-actions">
+                <span class="tl-action">👍 7</span>
+                <span class="tl-action">💬 回复</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 日期标记 -->
+          <div class="tl-date-marker">
+            <div class="tl-date-dot">📅</div>
+            <div class="tl-date-text">2025-05-20</div>
+          </div>
+
+          <div class="tl-node">
+            <div class="tl-dot tech"></div>
+            <div class="tl-card">
+              <div class="tl-card-header">
+                <div class="tl-card-avatar" style="background:#00b42a">何</div>
+                <div>
+                  <div class="tl-card-name">何明辉</div>
+                  <div class="tl-card-role">技术中心 · 产品测试高级工程师</div>
+                </div>
+                <div class="tl-card-time">05-20 18:30</div>
+              </div>
+              <div class="contrib-tag contrib-tech">🔧 安装调试</div>
+              <div class="tl-card-content">
+                <p>现场安装调试已全部完成，汇报情况：</p>
+                <p>1. 118台设备全部安装就位，<strong>DCS通讯100%正常</strong><br>
+                2. HART协议切换非常顺利，甲方周工很满意<br>
+                3. 精度校验全部通过，现场出具了<strong>118份校验证书</strong><br>
+                4. 发现1台热电偶变送器有轻微零点漂移，已现场调校解决</p>
+                <p>建议下周安排72小时连续运行测试，通过后即可走验收流程。</p>
+              </div>
+              <div class="tl-attachments">
+                <div class="attachment"><span class="att-icon">📷</span><span>现场安装照片（28张）.zip</span><span class="att-size">22.5 MB</span></div>
+                <div class="attachment"><span class="att-icon">📄</span><span>安装调试报告.pdf</span><span class="att-size">4.3 MB</span></div>
+              </div>
+              <div class="tl-card-actions">
+                <span class="tl-action"><span class="liked">👍</span> 15</span>
+                <span class="tl-action">💬 回复</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- ====== 阶段五：验收通过 ====== -->
+          <div class="tl-phase">
+            <div class="tl-phase-dot decide">✅</div>
+            <div class="tl-phase-content">
+              <span class="tl-phase-label">验收通过</span>
+              <span class="tl-phase-sub">· 05-28 · 甲方正式签署验收报告</span>
+              <div class="tl-phase-line"></div>
+            </div>
+          </div>
+
+          <div class="tl-node">
+            <div class="tl-dot milestone"></div>
+            <div class="tl-card card-milestone">
+              <div class="tl-card-header">
+                <div class="tl-card-avatar" style="background:#f77234">赵</div>
+                <div>
+                  <div class="tl-card-name">赵明</div>
+                  <div class="tl-card-role">营销集群 · 华中战区 · 客户经理</div>
+                </div>
+                <div class="tl-card-time">05-28 16:00</div>
+              </div>
+              <div class="milestone-banner">
+                <span>🏁</span>
+                <span>项目验收通过</span>
+              </div>
+              <div class="tl-card-content">
+                <p>🎉 <strong>甲方正式签署验收报告！</strong></p>
+                <p>72小时连续运行测试全部通过，关键指标：</p>
+                <ul>
+                  <li>设备可用率：<strong>100%</strong></li>
+                  <li>精度达标率：<strong>100%</strong>（138台全部在±0.075%范围内）</li>
+                  <li>通讯成功率：<strong>99.98%</strong></li>
+                </ul>
+                <p>甲方评价很高，张工说<strong>"比原来Rosemount还稳定"</strong>。尾款 ¥29.56万 走审批中，预计两周到账。</p>
+                <p>另外，甲方透露<strong>2号机组改造预计Q4启动</strong>，我们已经拿到优先权 💪</p>
+              </div>
+              <div class="tl-attachments">
+                <div class="attachment"><span class="att-icon">📄</span><span>华润电力郑州项目验收报告（已签章）.pdf</span><span class="att-size">3.8 MB</span></div>
+                <div class="attachment"><span class="att-icon">📊</span><span>72小时运行数据.xlsx</span><span class="att-size">6.1 MB</span></div>
+              </div>
+              <div class="tl-card-actions">
+                <span class="tl-action"><span class="liked">👍</span> 26</span>
+                <span class="tl-action">💬 回复</span>
+                <span class="tl-action">📌 收藏</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- ====== 阶段六：售后服务 ====== -->
+          <div class="tl-phase">
+            <div class="tl-phase-dot" style="background:#e8f7ff;">🛠️</div>
+            <div class="tl-phase-content">
+              <span class="tl-phase-label">售后服务</span>
+              <span class="tl-phase-sub">· 06-01 ~ 进行中 · 质保+巡检服务</span>
+              <div class="tl-phase-line"></div>
+            </div>
+          </div>
+
+          <div class="tl-node">
+            <div class="tl-dot" style="background:#0fc6c2;box-shadow:0 0 0 2px #c7f5f3;"></div>
+            <div class="tl-card">
+              <div class="tl-card-header">
+                <div class="tl-card-avatar" style="background:#0fc6c2">孙</div>
+                <div>
+                  <div class="tl-card-name">孙强</div>
+                  <div class="tl-card-role">售后服务部 · 现场服务工程师</div>
+                </div>
+                <div class="tl-card-time">06-15 17:20</div>
+              </div>
+              <div class="contrib-tag contrib-update">🛠️ 首次巡检</div>
+              <div class="tl-card-content">
+                <p>首次季度巡检完成（6月15日），巡检结果：</p>
+                <p style="line-height:2.2;">
+                  <span style="display:inline-flex;align-items:center;gap:4px;background:#e8ffea;padding:2px 8px;border-radius:4px;color:#00b42a;font-size:13px;margin-right:4px;">✅ 正常</span> 136台设备运行正常，精度无漂移<br>
+                  <span style="display:inline-flex;align-items:center;gap:4px;background:#fff7e8;padding:2px 8px;border-radius:4px;color:#ff7d00;font-size:13px;margin-right:4px;">⚠️ 关注</span> 2台高温工位设备膜片有轻微腐蚀迹象，建议下季度更换<br>
+                  <span style="display:inline-flex;align-items:center;gap:4px;background:#e8ffea;padding:2px 8px;border-radius:4px;color:#00b42a;font-size:13px;margin-right:4px;">✅ 已处理</span> 现场重新校准了3台零点偏移设备
+                </p>
+                <p>整体评价：设备运行状况<strong>优秀</strong>。膜片问题已通知 @刘伟 备货。</p>
+              </div>
+              <div class="tl-attachments">
+                <div class="attachment"><span class="att-icon">📄</span><span>Q2巡检报告（华润郑州）.pdf</span><span class="att-size">2.1 MB</span></div>
+              </div>
+              <div class="tl-card-actions">
+                <span class="tl-action">👍 8</span>
+                <span class="tl-action">💬 回复</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 日期标记 -->
+          <div class="tl-date-marker">
+            <div class="tl-date-dot">📅</div>
+            <div class="tl-date-text">2025-06-24 · 昨天</div>
+          </div>
+
+          <div class="tl-node">
+            <div class="tl-dot" style="background:#f53f3f;box-shadow:0 0 0 2px #ffdbdb;"></div>
+            <div class="tl-card" style="border-left:3px solid #ff7d00;background:#fffcf7;">
+              <div class="tl-card-header">
+                <div class="tl-card-avatar" style="background:#0fc6c2">孙</div>
+                <div>
+                  <div class="tl-card-name">孙强</div>
+                  <div class="tl-card-role">售后服务部 · 现场服务工程师</div>
+                </div>
+                <div class="tl-card-time">昨天 14:10</div>
+              </div>
+              <div class="contrib-tag" style="background:#fff0e5;color:#ff7d00;">🔥 客户报修</div>
+              <div class="tl-card-content">
+                <p>收到甲方张工来电：<strong>2台高温工位变送器读数异常</strong>，偏差超过±0.2%。</p>
+                <p>初步判断是上次巡检发现的膜片腐蚀加重导致的。已安排明天上午赴现场处理。</p>
+                <p>@刘伟 备件膜片（型号：DPM-HT-025）能今天发货吗？<br>
+                @李旸 高温工位是否需要升级为<strong>钽膜片</strong>？原来用的是316L不锈钢。</p>
+              </div>
+              <div class="tl-card-actions">
+                <span class="tl-action">👍 3</span>
+                <span class="tl-action">💬 回复</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="tl-node">
+            <div class="tl-dot tech"></div>
+            <div class="tl-card">
+              <div class="tl-card-header">
+                <div class="tl-card-avatar" style="background:#00b42a">何</div>
+                <div>
+                  <div class="tl-card-name">何明辉</div>
+                  <div class="tl-card-role">技术中心 · 产品测试高级工程师</div>
+                </div>
+                <div class="tl-card-time">昨天 15:40</div>
+              </div>
+              <div class="contrib-tag contrib-tech">🔬 技术建议</div>
+              <div class="tl-card-content">
+                <div class="quote">曹卫国：高温工位是否需要升级为钽膜片？</div>
+                <p>查了下工况数据，这个工位介质温度长期在 280°C，<span class="highlight">316L在这个温度下耐蚀性确实不够</span>。</p>
+                <p>建议：</p>
+                <p>1. 这次先换 <strong>Hastelloy C-276 膜片</strong>，比钽便宜且够用<br>
+                2. 同时给甲方出个<strong>材质升级建议书</strong>，2号机组直接上 C-276<br>
+                3. 备件已经有现货，@刘伟 可以直接发</p>
+              </div>
+              <div class="tl-card-actions">
+                <span class="tl-action">👍 6</span>
+                <span class="tl-action">💬 回复</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="tl-node">
+            <div class="tl-dot biz"></div>
+            <div class="tl-card">
+              <div class="tl-card-header">
+                <div class="tl-card-avatar" style="background:#165dff">吕</div>
+                <div>
+                  <div class="tl-card-name">吕建华</div>
+                  <div class="tl-card-role">制造中心 · 生产计划主管</div>
+                </div>
+                <div class="tl-card-time">昨天 16:20</div>
+              </div>
+              <div class="contrib-tag contrib-biz">📦 备件发货</div>
+              <div class="tl-card-content">
+                <p>C-276 膜片 3套已安排<strong>今天下午发顺丰空运</strong>，预计明天上午10点前到南京。快递单号：SF9876543210</p>
+                <p>另外多发了1套备用件，放在甲方现场备着。</p>
+              </div>
+              <div class="tl-card-actions">
+                <span class="tl-action">👍 5</span>
+                <span class="tl-action">💬 回复</span>
+              </div>
+            </div>
+          </div>
+
+          <div style="height:24px;"></div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- 底部回复框 -->
+    <div class="reply-box">
+      <div class="reply-input-wrap">
+        <textarea class="reply-input" placeholder="回复这个主题… 可 @人、插入附件" rows="1"></textarea>
+      </div>
+      <div class="reply-toolbar">
+        <div class="toolbar-btn" title="@提及">@</div>
+        <div class="toolbar-btn" title="附件">📎</div>
+        <div class="toolbar-btn" title="表情">😊</div>
+        <div class="toolbar-btn" title="投票">📊</div>
+        <div class="toolbar-btn" title="待办">☑️</div>
+        <div class="toolbar-btn" title="标记进展">🏁</div>
+        <button class="send-btn">发送</button>
+      </div>
+    </div>
+
+    </div><!-- /topic2 -->
+</div>
+
+<script>
+// 主题列表点击（不切换详情）
+function selectTopic(el) {
+  document.querySelectorAll('.topic-item').forEach(i => i.classList.remove('active'));
+  el.classList.add('active');
+}
+
+// 主题切换（有详情内容的主题用这个）
+function switchTopic(topicId, el) {
+  // 高亮列表项
+  document.querySelectorAll('.topic-item').forEach(i => i.classList.remove('active'));
+  el.classList.add('active');
+  // 切换详情
+  document.querySelectorAll('.topic-detail-content').forEach(d => d.style.display = 'none');
+  const target = document.getElementById(topicId);
+  if (target) {
+    target.style.display = 'flex';
+    // 滚回顶部
+    const body = target.querySelector('.detail-body');
+    if (body) body.scrollTop = 0;
+  }
+}
+
+// 里程碑折叠/展开（内联卡片）
+function toggleMilestoneInline() {
+  const body = document.getElementById('milestoneBody');
+  const arrow = document.getElementById('milestoneArrow');
+  body.classList.toggle('collapsed');
+  arrow.classList.toggle('collapsed');
+}
+
+// 自适应文本框高度
+document.querySelectorAll('.reply-input').forEach(textarea => {
+  textarea.addEventListener('input', function() {
+    this.style.height = 'auto';
+    this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+  });
+});
+</script>
+</body>
+</html>

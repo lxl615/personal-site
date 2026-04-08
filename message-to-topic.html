@@ -1,0 +1,1108 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>消息沉淀至主题帖</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+  background: #f0f2f5; color: #1d2129; font-size: 14px; height: 100vh; overflow: hidden;
+}
+
+/* ========== 企微主布局 ========== */
+.wecom-app { display: flex; height: 100vh; }
+
+/* ========== 最左侧图标导航栏 ========== */
+.side-nav {
+  width: 54px; background: #2e2e2e; display: flex; flex-direction: column;
+  align-items: center; padding: 16px 0; gap: 4px; flex-shrink: 0;
+}
+.nav-avatar {
+  width: 36px; height: 36px; border-radius: 4px; background: linear-gradient(135deg, #ec4899, #f472b6);
+  display: flex; align-items: center; justify-content: center;
+  color: #fff; font-size: 14px; font-weight: 600; margin-bottom: 20px; cursor: pointer;
+}
+.nav-icon {
+  width: 42px; height: 42px; border-radius: 8px; display: flex; align-items: center;
+  justify-content: center; font-size: 22px; cursor: pointer; position: relative;
+  transition: background 0.15s;
+  color: #aaa;
+}
+.nav-icon:hover { background: rgba(255,255,255,0.08); }
+.nav-icon.active { background: rgba(255,255,255,0.12); color: #fff; }
+.nav-icon .badge {
+  position: absolute; top: 4px; right: 4px; width: 8px; height: 8px;
+  background: #f43f5e; border-radius: 50%; border: 1.5px solid #2e2e2e;
+}
+.nav-icon .badge-num {
+  position: absolute; top: 2px; right: 0px; min-width: 16px; height: 16px;
+  background: #f43f5e; border-radius: 8px; border: 1.5px solid #2e2e2e;
+  font-size: 10px; color: #fff; display: flex; align-items: center; justify-content: center;
+  padding: 0 4px; font-weight: 500;
+}
+.nav-spacer { flex: 1; }
+.nav-bottom-icons { display: flex; flex-direction: column; gap: 4px; align-items: center; }
+
+/* ========== 会话列表 ========== */
+.session-list {
+  width: 260px; background: #ececec; border-right: 1px solid #d9d9d9;
+  display: flex; flex-direction: column; flex-shrink: 0;
+}
+.session-search {
+  padding: 10px 12px; display: flex; gap: 8px; align-items: center;
+}
+.session-search input {
+  flex: 1; height: 30px; border: none; background: #ddd; border-radius: 4px;
+  padding: 0 10px; font-size: 13px; outline: none; color: #333;
+}
+.session-search .add-btn {
+  width: 30px; height: 30px; background: #ddd; border-radius: 4px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; color: #666; cursor: pointer;
+}
+.session-items { flex: 1; overflow-y: auto; }
+.session-item {
+  display: flex; align-items: center; gap: 10px; padding: 12px 12px;
+  cursor: pointer; transition: background 0.1s; position: relative;
+}
+.session-item:hover { background: #e0e0e0; }
+.session-item.active { background: #d4d4d4; }
+.session-item .s-avatar {
+  width: 40px; height: 40px; border-radius: 4px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  color: #fff; font-size: 14px; font-weight: 500;
+}
+.session-item .s-info { flex: 1; min-width: 0; }
+.session-item .s-name { font-size: 14px; color: #111; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.session-item .s-preview { font-size: 12px; color: #999; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 2px; }
+.session-item .s-time { font-size: 11px; color: #bbb; position: absolute; right: 12px; top: 14px; }
+.session-item .s-unread {
+  position: absolute; right: 12px; bottom: 14px; min-width: 16px; height: 16px;
+  background: #f43f5e; border-radius: 8px; font-size: 10px; color: #fff;
+  display: flex; align-items: center; justify-content: center; padding: 0 4px;
+}
+
+/* ========== 右侧主内容区 ========== */
+.main-content { flex: 1; display: flex; flex-direction: column; background: #f5f5f5; overflow: hidden; }
+
+/* --- 消息Tab内容 --- */
+.tab-content { display: none; flex-direction: column; height: 100%; }
+.tab-content.active { display: flex; }
+
+/* 聊天头部 */
+.chat-header {
+  height: 52px; background: #f5f5f5; display: flex; align-items: center;
+  padding: 0 20px; border-bottom: 1px solid #e0e0e0; gap: 10px;
+}
+.chat-header .group-name { font-size: 15px; font-weight: 600; color: #111; flex: 1; }
+.chat-header .header-actions { display: flex; gap: 14px; }
+.chat-header .header-actions span { font-size: 18px; color: #888; cursor: pointer; }
+.related-topic-btn {
+  font-size: 12px !important; color: #4a7bf7 !important;
+  background: #f0f4ff; border: 1px solid #d6e0ff; border-radius: 4px;
+  padding: 3px 8px; white-space: nowrap;
+  transition: all 0.2s;
+}
+.related-topic-btn:hover {
+  background: #e0e9ff; border-color: #4a7bf7;
+}
+
+/* 聊天消息区 */
+.chat-messages { flex: 1; overflow-y: auto; padding: 16px 20px; display: flex; flex-direction: column; gap: 16px; background: #f5f5f5; }
+.sys-msg { text-align: center; font-size: 12px; color: #b0b0b0; padding: 4px 0; }
+
+/* 消息气泡 */
+.msg { display: flex; gap: 8px; align-items: flex-start; }
+.msg.self { flex-direction: row-reverse; }
+.msg .avatar {
+  width: 36px; height: 36px; border-radius: 4px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  color: #fff; font-size: 14px; font-weight: 500;
+}
+.msg .bubble-wrap { max-width: 360px; }
+.msg .sender { font-size: 12px; color: #999; margin-bottom: 3px; }
+.msg.self .sender { text-align: right; }
+.msg .bubble {
+  padding: 10px 14px; border-radius: 4px; font-size: 14px; line-height: 1.6;
+  word-break: break-all; position: relative;
+}
+.msg .bubble { background: #fff; color: #111; }
+.msg.self .bubble { background: #95ec69; color: #111; }
+
+/* 结论气泡 */
+.msg .bubble.conclusion-bubble { background: #fff; border: 1px solid #e8e8e8; }
+
+/* ========== 存入记忆库 icon 按钮 ========== */
+.memory-tip {
+  display: inline-flex; align-items: center; gap: 0;
+  margin-top: 6px;
+  cursor: pointer; transition: all 0.3s ease;
+  opacity: 0; transform: translateY(6px);
+  animation: tipSlideIn 0.4s ease forwards 0.3s;
+}
+.memory-tip .tip-icon-btn {
+  width: 28px; height: 28px;
+  display: flex; align-items: center; justify-content: center;
+  background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 50%;
+  font-size: 15px; transition: all 0.2s;
+}
+.memory-tip .tip-icon-btn:hover {
+  background: #dcfce7; border-color: #86efac;
+  box-shadow: 0 1px 4px rgba(34,197,94,0.15);
+  transform: scale(1.1);
+}
+@keyframes tipSlideIn {
+  to { opacity: 1; transform: translateY(0); }
+}
+.memory-tip.saved {
+  gap: 6px; pointer-events: auto; cursor: default;
+}
+.memory-tip.saved .tip-icon-btn {
+  background: #dcfce7; border-color: #86efac;
+  pointer-events: none;
+}
+.memory-tip.saved .tip-saved-text {
+  font-size: 12px; color: #6b7280;
+  opacity: 0; animation: textFadeIn 0.3s ease forwards;
+}
+.memory-tip.saved .tip-link {
+  color: #4a7bf7; cursor: pointer; text-decoration: none; font-size: 12px;
+  opacity: 0; animation: textFadeIn 0.3s ease 0.1s forwards;
+}
+.memory-tip.saved .tip-link:hover { text-decoration: underline; }
+@keyframes textFadeIn {
+  to { opacity: 1; }
+}
+
+/* 聊天底部输入框 */
+.chat-input-bar { padding: 10px 16px; background: #f5f5f5; border-top: 1px solid #ddd; }
+.chat-input-toolbar { display: flex; gap: 16px; margin-bottom: 6px; }
+.chat-input-toolbar span { font-size: 18px; color: #888; cursor: pointer; }
+.chat-input-textarea {
+  width: 100%; min-height: 56px; border: none; background: #fff;
+  border-radius: 4px; padding: 8px 12px; font-size: 14px; resize: none;
+  outline: none; font-family: inherit; line-height: 1.5;
+}
+.chat-input-footer { display: flex; justify-content: flex-end; margin-top: 6px; }
+.chat-send-btn {
+  padding: 5px 18px; background: #07c160; color: #fff; border: none;
+  border-radius: 4px; font-size: 13px; cursor: pointer;
+}
+
+/* ========== 邮件Tab：主题帖详情 ========== */
+.mail-header {
+  padding: 18px 24px 14px; border-bottom: 1px solid #e5e6eb; background: #fff;
+}
+.mail-title-row { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 8px; }
+.mail-title { font-size: 17px; font-weight: 600; color: #1d2129; line-height: 1.4; }
+.mail-follow-btn {
+  padding: 3px 12px; border: 1px solid #165dff; border-radius: 14px;
+  font-size: 12px; color: #165dff; cursor: pointer; background: #e8f3ff; white-space: nowrap;
+}
+.mail-tags { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-size: 12px; color: #86909c; }
+.mail-tag { padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 500; }
+.tag-dept { background: #e8f3ff; color: #165dff; }
+.tag-type { background: #f3f0ff; color: #7b61ff; }
+.mail-participants { display: flex; align-items: center; gap: 1px; margin-left: 6px; }
+.mail-participants .p-avatar {
+  width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center;
+  justify-content: center; color: #fff; font-size: 9px; font-weight: 500;
+  border: 2px solid #fff; margin-left: -5px;
+}
+.mail-participants .p-avatar:first-child { margin-left: 0; }
+
+/* AI 周总结 */
+.ai-summary {
+  margin: 14px 24px 0; background: linear-gradient(135deg, #fafbff, #f0f4ff);
+  border: 1px solid #e0e7ff; border-radius: 10px; overflow: hidden;
+}
+.ai-summary-header {
+  display: flex; align-items: center; gap: 8px; padding: 12px 14px;
+  cursor: pointer; user-select: none;
+}
+.ai-summary-header:hover { background: rgba(99,102,241,0.03); }
+.ai-summary-icon {
+  width: 26px; height: 26px; border-radius: 7px;
+  background: linear-gradient(135deg, #818cf8, #6366f1);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; color: #fff;
+}
+.ai-summary-title { font-size: 13px; font-weight: 600; color: #4338ca; flex: 1; }
+.ai-summary-badge {
+  font-size: 10px; padding: 2px 7px; background: #fef3c7; color: #d97706;
+  border-radius: 10px; font-weight: 500;
+}
+.ai-summary-arrow { font-size: 11px; color: #a5b4fc; transition: transform 0.2s; display: inline-block; }
+.ai-summary-arrow.collapsed { transform: rotate(-90deg); }
+.ai-summary-body { padding: 0 14px 14px; overflow: hidden; transition: max-height 0.3s ease, padding 0.3s ease; }
+.ai-summary-body.collapsed { max-height: 0 !important; padding: 0 14px; }
+.summary-section { margin-bottom: 12px; }
+.summary-section:last-child { margin-bottom: 0; }
+.summary-label { font-size: 12px; font-weight: 600; color: #6366f1; margin-bottom: 5px; display: flex; align-items: center; gap: 4px; }
+.summary-content { font-size: 13px; color: #475569; line-height: 1.7; }
+.summary-decision {
+  background: #fff; border: 1px solid #e2e8f0; border-radius: 8px;
+  padding: 10px 12px; margin-bottom: 6px;
+}
+.decision-header { display: flex; align-items: center; gap: 5px; margin-bottom: 3px; }
+.decision-dot { width: 7px; height: 7px; border-radius: 50%; }
+.decision-dot.red { background: #f43f5e; }
+.decision-dot.blue { background: #3b82f6; }
+.decision-title { font-size: 12px; font-weight: 600; color: #1e293b; }
+.decision-body { font-size: 12px; color: #64748b; line-height: 1.5; padding-left: 12px; }
+.decision-relation {
+  display: flex; align-items: flex-start; gap: 5px;
+  margin-top: 5px; padding: 5px 8px; background: #fffbeb; border-radius: 5px;
+  font-size: 11px; color: #b45309; line-height: 1.4;
+}
+
+/* 事件脉络 */
+.milestone-section {
+  margin: 10px 24px 0; background: #fafbfc; border: 1px solid #f2f3f5;
+  border-radius: 10px; overflow: hidden;
+}
+.milestone-header {
+  display: flex; align-items: center; gap: 7px; padding: 10px 14px;
+  cursor: pointer; user-select: none;
+}
+.milestone-header:hover { background: #f2f3f5; }
+.milestone-title { font-size: 13px; font-weight: 500; color: #4e5969; flex: 1; }
+.milestone-arrow { font-size: 11px; color: #86909c; transition: transform 0.2s; }
+.milestone-arrow.collapsed { transform: rotate(-90deg); }
+.milestone-body { padding: 0 14px 14px; overflow: hidden; transition: max-height 0.3s ease; }
+.milestone-body.collapsed { max-height: 0 !important; padding: 0 14px; }
+.milestone-track { display: flex; align-items: flex-start; position: relative; padding: 4px 0 0; }
+.milestone-node { display: flex; flex-direction: column; align-items: center; flex: 1; position: relative; min-width: 0; }
+.milestone-dot {
+  width: 12px; height: 12px; border-radius: 50%; border: 2.5px solid #c9cdd4;
+  background: #fff; position: relative; z-index: 2; flex-shrink: 0;
+}
+.milestone-dot.done { border-color: #00b42a; background: #00b42a; }
+.milestone-dot.active { border-color: #165dff; background: #165dff; }
+.milestone-line {
+  position: absolute; top: 6px; left: 50%; right: -50%; height: 2px;
+  background: #e5e6eb; z-index: 1;
+}
+.milestone-line.done { background: #00b42a; }
+.milestone-line.active { background: #165dff; }
+.milestone-node:last-child .milestone-line { display: none; }
+.milestone-label { margin-top: 6px; font-size: 10px; color: #86909c; text-align: center; line-height: 1.3; }
+.milestone-label.done { color: #00b42a; }
+.milestone-label.active { color: #165dff; font-weight: 600; }
+.milestone-date { font-size: 9px; color: #c9cdd4; margin-top: 1px; }
+.milestone-node.new-node { animation: nodeAppear 0.5s cubic-bezier(0.34,1.56,0.64,1) both; }
+@keyframes nodeAppear { from { opacity:0; transform:scale(0.5) translateY(8px); } to { opacity:1; transform:scale(1) translateY(0); } }
+.milestone-dot.new-pulse { animation: dotPulse 1.5s ease-in-out infinite; }
+@keyframes dotPulse { 0%,100%{box-shadow:0 0 0 0 rgba(139,92,246,0.4);} 50%{box-shadow:0 0 0 6px rgba(139,92,246,0);} }
+
+/* 时间轴 */
+.mail-body { flex: 1; overflow-y: auto; padding: 0; }
+.timeline-section { padding: 0 24px 0 0; }
+.timeline-replies-header {
+  padding: 14px 0 10px 24px; font-size: 13px; font-weight: 500; color: #1d2129;
+  border-bottom: 1px solid #f2f3f5; display: flex; align-items: center;
+  justify-content: space-between; padding-right: 24px;
+}
+.timeline-container { position: relative; padding-left: 24px; }
+.timeline-rail {
+  position: absolute; left: 43px; top: 0; bottom: 0; width: 2px;
+  background: #e5e6eb;
+}
+.tl-phase { position: relative; padding: 16px 0 6px 40px; }
+.tl-phase-dot {
+  position: absolute; left: 10px; top: 18px; width: 22px; height: 22px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center; font-size: 11px; z-index: 3;
+}
+.tl-phase-dot.initiate { background: #f3f0ff; }
+.tl-phase-dot.discuss { background: #fff0e5; }
+.tl-phase-dot.decide { background: #e8ffea; }
+.tl-phase-content { display: flex; align-items: center; gap: 10px; }
+.tl-phase-label { font-size: 13px; font-weight: 600; color: #1d2129; }
+.tl-phase-sub { font-size: 12px; color: #86909c; }
+.tl-phase-line { flex: 1; height: 1px; background: #e5e6eb; }
+
+.tl-node { position: relative; padding: 0 24px 0 40px; margin-bottom: 0; }
+.tl-node:last-child { margin-bottom: 20px; }
+.tl-dot {
+  position: absolute; left: 16px; top: 18px; width: 10px; height: 10px;
+  border-radius: 50%; background: #c9cdd4; border: 2px solid #fff;
+  box-shadow: 0 0 0 2px #e5e6eb; z-index: 2;
+}
+.tl-dot.author { background: #165dff; box-shadow: 0 0 0 2px #bedaff; }
+.tl-dot.tech { background: #00b42a; box-shadow: 0 0 0 2px #b9f0c8; }
+.tl-dot.decision {
+  background: #fff; border: 3px solid #f53f3f; box-shadow: 0 0 0 3px #ffdbdb;
+  width: 14px; height: 14px; left: 14px; top: 16px;
+}
+
+.tl-date-marker { position: relative; padding: 14px 0 6px 40px; }
+.tl-date-marker .tl-date-dot {
+  position: absolute; left: 13px; top: 18px; width: 14px; height: 14px;
+  border-radius: 50%; background: #f2f3f5; border: 2px solid #e5e6eb; z-index: 2;
+  display: flex; align-items: center; justify-content: center; font-size: 7px; color: #86909c;
+}
+.tl-date-text { font-size: 12px; color: #c9cdd4; font-weight: 500; }
+
+.tl-card {
+  background: #fff; border: 1px solid #f2f3f5; border-radius: 8px;
+  padding: 14px; margin: 5px 0; transition: all 0.15s;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+}
+.tl-card:hover { border-color: #e5e6eb; box-shadow: 0 2px 6px rgba(0,0,0,0.05); }
+.tl-card.card-decision { border-left: 3px solid #f53f3f; background: #fffbfa; }
+.tl-card.card-initiate { border-left: 3px solid #7b61ff; background: #faf8ff; }
+.tl-card-header { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.tl-card-avatar {
+  width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center;
+  justify-content: center; color: #fff; font-size: 12px; font-weight: 500; flex-shrink: 0;
+}
+.tl-card-name { font-size: 13px; font-weight: 600; color: #1d2129; }
+.tl-card-role { font-size: 11px; color: #86909c; }
+.tl-card-time { margin-left: auto; font-size: 11px; color: #c9cdd4; white-space: nowrap; }
+.contrib-tag {
+  display: inline-flex; align-items: center; gap: 3px;
+  padding: 2px 7px; border-radius: 3px; font-size: 11px; font-weight: 500; margin-bottom: 6px;
+}
+.contrib-initiate { background: #f3f0ff; color: #7b61ff; }
+.contrib-tech { background: #e8ffea; color: #00b42a; }
+.contrib-biz { background: #fff0e5; color: #f77234; }
+.contrib-decision { background: #ffe8e8; color: #f53f3f; }
+.tl-card-content { font-size: 13px; line-height: 1.7; color: #4e5969; }
+.tl-card-content p { margin-bottom: 6px; }
+.tl-card-content .highlight { background: #fffce8; padding: 1px 3px; border-radius: 2px; }
+.tl-card-content ul { padding-left: 18px; margin: 4px 0; }
+.tl-card-content li { margin-bottom: 2px; }
+.tl-card-actions {
+  display: flex; gap: 14px; margin-top: 8px; padding-top: 7px; border-top: 1px solid #f7f8fa;
+}
+.tl-action { font-size: 12px; color: #c9cdd4; cursor: pointer; display: flex; align-items: center; gap: 3px; }
+.tl-action:hover { color: #165dff; }
+.decision-banner {
+  display: flex; align-items: center; gap: 6px; padding: 6px 10px;
+  background: #fff5f5; border-radius: 5px; margin-bottom: 8px;
+  font-size: 12px; font-weight: 500; color: #f53f3f;
+}
+
+/* 新沉淀卡片 */
+.tl-card.card-new-sedimented {
+  border-left: 3px solid #8b5cf6; background: linear-gradient(135deg, #faf5ff, #f5f3ff);
+  opacity: 0; transform: translateY(16px);
+}
+.tl-card.card-new-sedimented.animate-in {
+  animation: cardSlideIn 0.5s cubic-bezier(0.34,1.56,0.64,1) forwards;
+}
+@keyframes cardSlideIn { to { opacity:1; transform:translateY(0); } }
+.sedimented-badge {
+  display: inline-flex; align-items: center; gap: 3px;
+  padding: 2px 8px; background: linear-gradient(135deg, #ede9fe, #ddd6fe);
+  color: #7c3aed; font-size: 11px; font-weight: 600; border-radius: 8px;
+  margin-bottom: 6px;
+}
+.new-glow { position: relative; }
+.new-glow::after {
+  content: ''; position: absolute; inset: -2px; border-radius: 10px;
+  background: linear-gradient(135deg, #c4b5fd, #a78bfa, #8b5cf6);
+  z-index: -1; opacity: 0; animation: glowPulse 2s ease-in-out 3;
+}
+@keyframes glowPulse { 0%,100%{opacity:0;} 50%{opacity:0.25;} }
+
+/* 邮件Tab红点 */
+.nav-icon .mail-new-dot {
+  position: absolute; top: 4px; right: 4px; width: 8px; height: 8px;
+  background: #f43f5e; border-radius: 50%; border: 1.5px solid #2e2e2e;
+  display: none;
+  animation: newDotPop 0.3s cubic-bezier(0.34,1.56,0.64,1);
+}
+@keyframes newDotPop { from { transform: scale(0); } to { transform: scale(1); } }
+
+/* Toast */
+.toast {
+  position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-80px);
+  background: #1e293b; color: #fff; padding: 10px 20px; border-radius: 8px;
+  font-size: 13px; z-index: 2000; transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.15); display: flex; align-items: center; gap: 6px;
+}
+.toast.show { transform: translateX(-50%) translateY(0); }
+
+/* 重新体验按钮 */
+.replay-btn {
+  position: fixed; bottom: 24px; right: 24px; z-index: 999;
+  padding: 8px 16px; border: none; border-radius: 20px;
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  color: #fff; font-size: 13px; font-weight: 500;
+  cursor: pointer; box-shadow: 0 3px 12px rgba(99,102,241,0.3);
+  display: flex; align-items: center; gap: 6px;
+  transition: all 0.2s ease;
+  opacity: 0; pointer-events: none; transform: translateY(8px);
+}
+.replay-btn.visible { opacity: 1; pointer-events: auto; transform: translateY(0); }
+.replay-btn:hover { box-shadow: 0 5px 20px rgba(99,102,241,0.4); transform: translateY(-2px); }
+
+/* 滚动条 */
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #e5e6eb; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #c9cdd4; }
+</style>
+</head>
+<body>
+
+<div class="wecom-app">
+
+  <!-- ========== 最左侧图标导航 ========== -->
+  <div class="side-nav">
+    <div class="nav-avatar">L</div>
+
+    <div class="nav-icon active" id="navChat" onclick="switchTab('chat')" title="消息">
+      💬
+      <div class="badge-num">17</div>
+    </div>
+    <div class="nav-icon" id="navMail" onclick="switchTab('mail')" title="邮件">
+      ✉️
+      <div class="mail-new-dot" id="mailNewDot"></div>
+    </div>
+    <div class="nav-icon" title="日程">📅</div>
+    <div class="nav-icon" title="文档">📄</div>
+    <div class="nav-icon" title="工作台">⊞</div>
+    <div class="nav-icon" title="通讯录">👥</div>
+
+    <div class="nav-spacer"></div>
+    <div class="nav-bottom-icons">
+      <div class="nav-icon" title="设置">⚙️</div>
+    </div>
+  </div>
+
+  <!-- ========== 会话列表 ========== -->
+  <div class="session-list" id="sessionList">
+    <!-- 消息Tab的会话列表 -->
+    <div id="chatSessions">
+      <div class="session-search">
+        <input type="text" placeholder="搜索" />
+        <div class="add-btn">+</div>
+      </div>
+      <div class="session-items">
+        <div class="session-item active">
+          <div class="s-avatar" style="background:linear-gradient(135deg,#4facfe,#00f2fe);">站</div>
+          <div class="s-info">
+            <div class="s-name">站内信设计📝</div>
+            <div class="s-preview">sherryliu: OK，那这个事情先对齐了…</div>
+          </div>
+          <div class="s-time">14:22</div>
+        </div>
+        <div class="session-item">
+          <div class="s-avatar" style="background:#7b61ff;">CB</div>
+          <div class="s-info">
+            <div class="s-name">CodeBuddy (内网版)…</div>
+            <div class="s-preview">[17条] juehuiyan… 20分钟前</div>
+          </div>
+          <div class="s-time">14:02</div>
+          <div class="s-unread">17</div>
+        </div>
+        <div class="session-item">
+          <div class="s-avatar" style="background:#f77234;">写</div>
+          <div class="s-info">
+            <div class="s-name">[5.0.8]写信编辑页支…</div>
+            <div class="s-preview">[群公告] [40条] 28分钟前</div>
+          </div>
+          <div class="s-time">13:54</div>
+          <div class="s-unread">40</div>
+        </div>
+        <div class="session-item">
+          <div class="s-avatar" style="background:#00b42a;">企</div>
+          <div class="s-info">
+            <div class="s-name">企应用团队负责人群</div>
+            <div class="s-preview">chloeezheng: [… 28分钟前</div>
+          </div>
+          <div class="s-time">13:54</div>
+        </div>
+        <div class="session-item">
+          <div class="s-avatar" style="background:#165dff;">接</div>
+          <div class="s-info">
+            <div class="s-name">智能助理接口能力-邮箱</div>
+            <div class="s-preview">royhuang: 邮箱接口… 35分钟前</div>
+          </div>
+          <div class="s-time">13:47</div>
+        </div>
+        <div class="session-item">
+          <div class="s-avatar" style="background:#8b5cf6;">富</div>
+          <div class="s-info">
+            <div class="s-name">富</div>
+            <div class="s-preview">另外。只能查看 x 天…</div>
+          </div>
+          <div class="s-time">15:29</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 邮件Tab的邮件列表（初始隐藏） -->
+    <div id="mailSessions" style="display:none;">
+      <div class="session-search">
+        <input type="text" placeholder="搜索邮件" />
+        <div class="add-btn">✏️</div>
+      </div>
+      <div class="session-items">
+        <div class="session-item active" onclick="showTopicMail()">
+          <div class="s-avatar" style="background:linear-gradient(135deg,#818cf8,#6366f1);">📋</div>
+          <div class="s-info">
+            <div class="s-name">企微邮箱MCP能力梳理&联动场景</div>
+            <div class="s-preview" id="mailPreview">lukaszhong: 前端POC已完成…</div>
+          </div>
+          <div class="s-time" id="mailTime">09:30</div>
+          <div class="s-unread" id="mailUnread" style="display:none;">新</div>
+        </div>
+        <div class="session-item">
+          <div class="s-avatar" style="background:#f77234;">📧</div>
+          <div class="s-info">
+            <div class="s-name">站内信设计-账号体系讨论</div>
+            <div class="s-preview">kennchen: 方案已更新到文档…</div>
+          </div>
+          <div class="s-time">昨天</div>
+        </div>
+        <div class="session-item">
+          <div class="s-avatar" style="background:#00b42a;">📧</div>
+          <div class="s-info">
+            <div class="s-name">Q2 OKR 对齐</div>
+            <div class="s-preview">sherryliu: 附件已更新…</div>
+          </div>
+          <div class="s-time">03-08</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== 右侧主内容 ========== -->
+  <div class="main-content">
+
+    <!-- ===== 消息 Tab ===== -->
+    <div class="tab-content active" id="tabChat">
+      <div class="chat-header">
+        <div class="group-name">站内信设计📝 · 6</div>
+        <div class="header-actions">
+          <span class="related-topic-btn" onclick="switchTab('mail')" title="跳转到关联主题帖">🔗 关联主题</span>
+          <span>📞</span>
+          <span>⋯</span>
+        </div>
+      </div>
+
+      <div class="chat-messages" id="chatMessages">
+        <div class="sys-msg">—— 2026年3月10日 ——</div>
+
+        <div class="msg">
+          <div class="avatar" style="background:#f77234;">刘</div>
+          <div class="bubble-wrap">
+            <div class="sender">sherryliu(刘夏珍)</div>
+            <div class="bubble">大家讨论下，「直收账号」这个能力要不要做？用户目前反馈找不到开通入口。</div>
+          </div>
+        </div>
+
+        <div class="msg">
+          <div class="avatar" style="background:#165dff;">谭</div>
+          <div class="bubble-wrap">
+            <div class="sender">tedtan(谭越维)</div>
+            <div class="bubble">直收账号的开发成本不低，而且涉及到安全审计。我倾向于先不做独立能力，引导用户走现有的开通流程。</div>
+          </div>
+        </div>
+
+        <div class="msg">
+          <div class="avatar" style="background:#00b42a;">付</div>
+          <div class="bubble-wrap">
+            <div class="sender">jennifu(付娅诗)</div>
+            <div class="bubble">同意，而且从数据看，真正需要直收的用户占比不到15%。优先级可以往后排。</div>
+          </div>
+        </div>
+
+        <div class="msg">
+          <div class="avatar" style="background:#7b61ff;">陈</div>
+          <div class="bubble-wrap">
+            <div class="sender">kennchen(陈坤)</div>
+            <div class="bubble">运营侧也觉得，开通引导做好就行了。帮助文档那边我可以优化一下开通流程的指引。</div>
+          </div>
+        </div>
+
+        <!-- 结论消息 -->
+        <div class="msg">
+          <div class="avatar" style="background:#f77234;">刘</div>
+          <div class="bubble-wrap">
+            <div class="sender">sherryliu(刘夏珍)</div>
+            <div class="bubble conclusion-bubble">
+              OK，那这个事情先对齐了：<strong>决策：「直收账号」先不做独立能力，引导用户开通现有流程</strong>。kennchen帮忙优化下帮助文档。下个版本再看数据决定是否重新排期。
+            </div>
+            <div class="memory-tip" id="memoryTip" onclick="saveToMemory()">
+              <div class="tip-icon-btn" title="存入记忆库">📒</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="msg">
+          <div class="avatar" style="background:#8b5cf6;">钟</div>
+          <div class="bubble-wrap">
+            <div class="sender">lukaszhong(钟路加)</div>
+            <div class="bubble">收到，那我这边前端也先不预留直收的入口了。</div>
+          </div>
+        </div>
+
+        <div class="msg self">
+          <div class="avatar" style="background:#ec4899;">我</div>
+          <div class="bubble-wrap">
+            <div class="sender">我</div>
+            <div class="bubble" style="background:#95ec69;">好的，记录一下这个决策点。后续如果数据有变化再重新评估。</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="chat-input-bar">
+        <div class="chat-input-toolbar">
+          <span>😊</span><span>📎</span><span>✂️</span><span>📷</span>
+        </div>
+        <textarea class="chat-input-textarea" placeholder="输入消息…"></textarea>
+        <div class="chat-input-footer">
+          <button class="chat-send-btn">发送</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== 邮件 Tab（主题帖详情） ===== -->
+    <div class="tab-content" id="tabMail">
+      <div class="mail-header">
+        <div class="mail-title-row">
+          <div class="mail-title">企微邮箱MCP能力梳理 & 联动场景</div>
+          <button class="mail-follow-btn">✓ 已关注</button>
+        </div>
+        <div class="mail-tags">
+          <span class="mail-tag tag-dept">邮箱产品</span>
+          <span class="mail-tag tag-dept">MCP能力</span>
+          <span class="mail-tag tag-type">长期追踪</span>
+          <span>发起于 2026-02-15</span>
+          <span>·</span>
+          <span>6人参与</span>
+          <span>·</span>
+          <span id="mailUpdateCount">12条更新</span>
+          <div class="mail-participants">
+            <div class="p-avatar" style="background:#f77234;">刘</div>
+            <div class="p-avatar" style="background:#165dff;">谭</div>
+            <div class="p-avatar" style="background:#00b42a;">付</div>
+            <div class="p-avatar" style="background:#7b61ff;">陈</div>
+            <div class="p-avatar" style="background:#8b5cf6;">钟</div>
+            <div class="p-avatar" style="background:#ec4899;">L</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="mail-body" id="mailBody">
+
+        <!-- AI 周总结 -->
+        <div class="ai-summary" id="aiSummary">
+          <div class="ai-summary-header" onclick="toggleAISummary()">
+            <div class="ai-summary-icon">✨</div>
+            <div class="ai-summary-title">AI 周总结</div>
+            <span class="ai-summary-badge" id="aiBadge">本周2个决策点</span>
+            <span class="ai-summary-arrow" id="aiArrow">▾</span>
+          </div>
+          <div class="ai-summary-body" id="aiBody" style="max-height:500px;">
+            <div style="font-size:13px;color:#475569;line-height:1.8;">
+              本周 <strong>2个决策</strong>：① 直收账号先不做，优化开通引导（⚠️ 与<span style="color:#2563eb;cursor:pointer;text-decoration:underline;">「站内信-账号体系」</span>讨论存在矛盾）；② 消息沉淀优先企微落地，邮箱二期（✅ 前端POC已验证可行）。
+            </div>
+          </div>
+        </div>
+
+        <!-- 事件脉络 -->
+        <div class="milestone-section">
+          <div class="milestone-header" onclick="toggleMilestone()">
+            <span style="font-size:14px;">📍</span>
+            <span class="milestone-title" id="msTitle">事件脉络 · 4个关键节点</span>
+            <span class="milestone-arrow" id="msArrow">▾</span>
+          </div>
+          <div class="milestone-body" id="msBody" style="max-height:140px;">
+            <div class="milestone-track" id="msTrack">
+              <div class="milestone-node">
+                <div class="milestone-dot done"></div>
+                <div class="milestone-line done"></div>
+                <div class="milestone-label done">需求梳理</div>
+                <div class="milestone-date">02-15</div>
+              </div>
+              <div class="milestone-node">
+                <div class="milestone-dot done"></div>
+                <div class="milestone-line done"></div>
+                <div class="milestone-label done">能力评估</div>
+                <div class="milestone-date">02-20</div>
+              </div>
+              <div class="milestone-node">
+                <div class="milestone-dot done"></div>
+                <div class="milestone-line done"></div>
+                <div class="milestone-label done">方案讨论</div>
+                <div class="milestone-date">03-01</div>
+              </div>
+              <div class="milestone-node">
+                <div class="milestone-dot active"></div>
+                <div class="milestone-line"></div>
+                <div class="milestone-label active">迭代推进</div>
+                <div class="milestone-date">03-10 ~</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 时间轴 -->
+        <div class="timeline-section">
+          <div class="timeline-replies-header">
+            <span id="replyCount">12 条回复 · 3个阶段</span>
+            <span style="font-size:11px;color:#86909c;cursor:pointer;">按时间排序 ▾</span>
+          </div>
+          <div class="timeline-container" id="timelineContainer">
+            <div class="timeline-rail"></div>
+
+            <div class="tl-phase">
+              <div class="tl-phase-dot initiate">🚀</div>
+              <div class="tl-phase-content">
+                <span class="tl-phase-label">需求梳理</span>
+                <span class="tl-phase-sub">· 2026-02-15</span>
+                <div class="tl-phase-line"></div>
+              </div>
+            </div>
+            <div class="tl-node">
+              <div class="tl-dot" style="background:#7b61ff;box-shadow:0 0 0 3px #ddd6fe;width:12px;height:12px;left:15px;top:14px;"></div>
+              <div class="tl-card card-initiate">
+                <div class="tl-card-header">
+                  <div class="tl-card-avatar" style="background:#f77234;">刘</div>
+                  <div><div class="tl-card-name">sherryliu <span style="font-size:11px;color:#86909c;font-weight:400;">发起了主题</span></div><div class="tl-card-role">产品经理</div></div>
+                  <div class="tl-card-time">02-15 10:00</div>
+                </div>
+                <div class="contrib-tag contrib-initiate">🚀 发起议题</div>
+                <div class="tl-card-content">
+                  <p>核心目标：<strong>让企微消息中有价值的内容，自然地沉淀到邮箱主题帖中</strong>，形成可追溯的决策记录。</p>
+                </div>
+                <div class="tl-card-actions"><span class="tl-action">👍 6</span><span class="tl-action">💬 回复</span></div>
+              </div>
+            </div>
+
+            <div class="tl-phase">
+              <div class="tl-phase-dot discuss">💬</div>
+              <div class="tl-phase-content">
+                <span class="tl-phase-label">方案讨论</span>
+                <span class="tl-phase-sub">· 02-20 ~ 03-01 · 5人参与</span>
+                <div class="tl-phase-line"></div>
+              </div>
+            </div>
+            <div class="tl-node">
+              <div class="tl-dot tech"></div>
+              <div class="tl-card">
+                <div class="tl-card-header">
+                  <div class="tl-card-avatar" style="background:#165dff;">谭</div>
+                  <div><div class="tl-card-name">tedtan</div><div class="tl-card-role">后端开发</div></div>
+                  <div class="tl-card-time">02-20 14:30</div>
+                </div>
+                <div class="contrib-tag contrib-tech">🔬 技术评估</div>
+                <div class="tl-card-content">
+                  <p>MCP 目前支持的消息类型：文字 ✅ · 图片 ✅ · 文件 ✅ · 合并转发 ✅<br><span class="highlight">语音消息需要先转文字</span>，二期做。</p>
+                </div>
+                <div class="tl-card-actions"><span class="tl-action">👍 5</span><span class="tl-action">💬 回复</span></div>
+              </div>
+            </div>
+            <div class="tl-node">
+              <div class="tl-dot" style="background:#00b42a;box-shadow:0 0 0 2px #b9f0c8;"></div>
+              <div class="tl-card">
+                <div class="tl-card-header">
+                  <div class="tl-card-avatar" style="background:#00b42a;">付</div>
+                  <div><div class="tl-card-name">jennifu</div><div class="tl-card-role">数据分析</div></div>
+                  <div class="tl-card-time">02-22 11:15</div>
+                </div>
+                <div class="contrib-tag contrib-biz">📊 数据支持</div>
+                <div class="tl-card-content">
+                  <p>过去3个月：平均每天 <strong>247条</strong> 工作消息，其中 <strong>12%</strong> 含有决策内容，90%以上 <strong>7天后无法检索</strong>。</p>
+                </div>
+                <div class="tl-card-actions"><span class="tl-action">👍 8</span><span class="tl-action">💬 回复</span></div>
+              </div>
+            </div>
+
+            <div class="tl-phase">
+              <div class="tl-phase-dot decide">⚡</div>
+              <div class="tl-phase-content">
+                <span class="tl-phase-label">迭代推进</span>
+                <span class="tl-phase-sub">· 03-01 ~ 进行中</span>
+                <div class="tl-phase-line"></div>
+              </div>
+            </div>
+            <div class="tl-node">
+              <div class="tl-dot decision"></div>
+              <div class="tl-card card-decision">
+                <div class="tl-card-header">
+                  <div class="tl-card-avatar" style="background:#f77234;">刘</div>
+                  <div><div class="tl-card-name">sherryliu</div><div class="tl-card-role">产品经理</div></div>
+                  <div class="tl-card-time">03-01 15:00</div>
+                </div>
+                <div class="decision-banner"><span>📌</span><span>决策结论</span></div>
+                <div class="tl-card-content">
+                  <p>1. <strong>消息沉淀能力优先接入企微</strong>，邮箱场景二期<br>2. AI 自动识别结论性消息，给出「存入记忆库」提示<br>3. 用户点击后归入对应主题帖，AI 自动建立关联</p>
+                </div>
+                <div class="tl-card-actions"><span class="tl-action">👍 9</span><span class="tl-action">💬 回复</span></div>
+              </div>
+            </div>
+
+            <div class="tl-date-marker">
+              <div class="tl-date-dot">📅</div>
+              <div class="tl-date-text">2026-03-10 · 今天</div>
+            </div>
+            <div class="tl-node">
+              <div class="tl-dot" style="background:#8b5cf6;box-shadow:0 0 0 2px #ddd6fe;"></div>
+              <div class="tl-card">
+                <div class="tl-card-header">
+                  <div class="tl-card-avatar" style="background:#8b5cf6;">钟</div>
+                  <div><div class="tl-card-name">lukaszhong</div><div class="tl-card-role">前端开发</div></div>
+                  <div class="tl-card-time">今天 09:30</div>
+                </div>
+                <div class="contrib-tag" style="background:#f3e8ff;color:#7c3aed;">🔧 进展更新</div>
+                <div class="tl-card-content">
+                  <p>前端 POC 已完成：<br>
+                  <span style="color:#00b42a;">✅</span> AI 结论识别 → tips 展示<br>
+                  <span style="color:#00b42a;">✅</span> 点击沉淀 → 主题帖关联写入<br>
+                  <span style="color:#ff7d00;">⏳</span> 脉络节点动态生成 → 本周完成</p>
+                </div>
+                <div class="tl-card-actions"><span class="tl-action">👍 4</span><span class="tl-action">💬 回复</span></div>
+              </div>
+            </div>
+
+            <!-- 新沉淀卡片（初始隐藏） -->
+            <div class="tl-node" id="newNode" style="display:none;">
+              <div class="tl-dot" style="background:#8b5cf6;box-shadow:0 0 0 3px #c4b5fd;width:12px;height:12px;left:15px;top:16px;"></div>
+              <div class="tl-card card-new-sedimented new-glow" id="newCard">
+                <div class="tl-card-header">
+                  <div class="tl-card-avatar" style="background:#f77234;">刘</div>
+                  <div><div class="tl-card-name">sherryliu <span style="font-size:11px;color:#86909c;font-weight:400;">· 来自群聊沉淀</span></div><div class="tl-card-role">站内信设计📝 · 群聊</div></div>
+                  <div class="tl-card-time">今天 14:22</div>
+                </div>
+                <div class="sedimented-badge"><span>💎</span> 从企微消息沉淀</div>
+                <div class="contrib-tag contrib-decision">📌 决策结论</div>
+                <div class="tl-card-content">
+                  <p><strong>决策：「直收账号」先不做独立能力，引导用户开通现有流程。</strong></p>
+                  <p style="font-size:12px;color:#64748b;">kennchen 负责优化帮助文档中的开通流程指引。下个版本根据数据决定是否重新排期。</p>
+                  <div style="margin-top:6px;padding:6px 10px;background:#fffbeb;border-radius:5px;border:1px solid #fef3c7;font-size:11px;color:#92400e;display:flex;align-items:flex-start;gap:5px;">
+                    <span>🔗</span><span>AI 关联：与上月「是否需要独立收件能力」的讨论存在潜在矛盾，建议后续同步评审。</span>
+                  </div>
+                </div>
+                <div class="tl-card-actions">
+                  <span class="tl-action">👍 1</span>
+                  <span class="tl-action">💬 回复</span>
+                  <span class="tl-action">📌 收藏</span>
+                  <span class="tl-action" style="margin-left:auto;color:#8b5cf6;font-weight:500;">查看原消息 →</span>
+                </div>
+              </div>
+            </div>
+
+            <div style="height:20px;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<!-- 重新体验按钮 -->
+<button class="replay-btn" id="replayBtn" onclick="resetDemo()">
+  <span>🔄</span><span>重新体验</span>
+</button>
+
+<script>
+let isSaved = false;
+let hasSedimentedNode = false;
+
+// ========== Tab 切换 ==========
+function switchTab(tab) {
+  const navChat = document.getElementById('navChat');
+  const navMail = document.getElementById('navMail');
+  const tabChat = document.getElementById('tabChat');
+  const tabMail = document.getElementById('tabMail');
+  const chatSessions = document.getElementById('chatSessions');
+  const mailSessions = document.getElementById('mailSessions');
+
+  if (tab === 'chat') {
+    navChat.classList.add('active');
+    navMail.classList.remove('active');
+    tabChat.classList.add('active');
+    tabMail.classList.remove('active');
+    chatSessions.style.display = '';
+    mailSessions.style.display = 'none';
+  } else {
+    navChat.classList.remove('active');
+    navMail.classList.add('active');
+    tabChat.classList.remove('active');
+    tabMail.classList.add('active');
+    chatSessions.style.display = 'none';
+    mailSessions.style.display = '';
+
+    // 清除邮件红点
+    document.getElementById('mailNewDot').style.display = 'none';
+    document.getElementById('mailUnread').style.display = 'none';
+
+    // 如果已沉淀，切过来时显示新节点
+    if (isSaved && !hasSedimentedNode) {
+      setTimeout(() => showNewSedimentedNode(), 300);
+    }
+  }
+}
+
+// ========== 存入记忆库 ==========
+function saveToMemory() {
+  if (isSaved) return;
+  isSaved = true;
+
+  // 1. 更新tip状态和文案
+  const tip = document.getElementById('memoryTip');
+  tip.classList.add('saved');
+  tip.innerHTML = '<div class="tip-icon-btn">📒</div><span class="tip-saved-text">已自动存入并关联「邮箱MCP」主题，</span><a class="tip-link" onclick="event.stopPropagation();switchTab(\'mail\')">查看 →</a>';
+
+  // 2. 滚动聊天区到底部
+  setTimeout(() => {
+    const chat = document.getElementById('chatMessages');
+    chat.scrollTo({ top: chat.scrollHeight, behavior: 'smooth' });
+  }, 200);
+
+  // 3. 邮件Tab亮红点
+  setTimeout(() => {
+    document.getElementById('mailNewDot').style.display = 'block';
+    // 更新邮件列表预览
+    document.getElementById('mailPreview').textContent = 'sherryliu: [群聊沉淀] 直收账号决策…';
+    document.getElementById('mailTime').textContent = '14:22';
+    document.getElementById('mailUnread').style.display = 'flex';
+  }, 800);
+}
+
+// ========== 显示新沉淀节点 ==========
+function showNewSedimentedNode() {
+  if (hasSedimentedNode) return;
+  hasSedimentedNode = true;
+
+  // 1. 脉络新增节点
+  const track = document.getElementById('msTrack');
+  const lastNode = track.querySelector('.milestone-node:last-child');
+  const lastLine = lastNode.querySelector('.milestone-line');
+  if (lastLine) {
+    lastLine.style.display = 'block';
+    lastLine.classList.add('active');
+  } else {
+    const nl = document.createElement('div');
+    nl.className = 'milestone-line active';
+    lastNode.querySelector('.milestone-dot').after(nl);
+  }
+
+  const mn = document.createElement('div');
+  mn.className = 'milestone-node new-node';
+  mn.id = 'dynamicMsNode';
+  mn.innerHTML = `
+    <div class="milestone-dot active new-pulse" style="border-color:#8b5cf6;background:#8b5cf6;"></div>
+    <div class="milestone-label active" style="color:#8b5cf6;">直收账号<br>决策</div>
+    <div class="milestone-date">03-10</div>
+  `;
+  track.appendChild(mn);
+  document.getElementById('msTitle').textContent = '事件脉络 · 5个关键节点';
+
+  // 2. 显示时间轴新卡片
+  const newNode = document.getElementById('newNode');
+  newNode.style.display = 'block';
+  const mailBody = document.getElementById('mailBody');
+  setTimeout(() => {
+    mailBody.scrollTo({ top: mailBody.scrollHeight, behavior: 'smooth' });
+  }, 100);
+  setTimeout(() => {
+    document.getElementById('newCard').classList.add('animate-in');
+  }, 300);
+
+  // 3. 更新数字
+  document.getElementById('replyCount').textContent = '13 条回复 · 3个阶段';
+  document.getElementById('mailUpdateCount').textContent = '13条更新';
+  document.getElementById('aiBadge').textContent = '本周3个决策点';
+
+  setTimeout(() => showToast('✨ 脉络已更新，新增「直收账号决策」节点'), 600);
+
+  // 显示重新体验按钮
+  setTimeout(() => {
+    document.getElementById('replayBtn').classList.add('visible');
+  }, 1500);
+}
+
+// ========== 重置 ==========
+function resetDemo() {
+  document.getElementById('replayBtn').classList.remove('visible');
+  isSaved = false;
+  hasSedimentedNode = false;
+
+  // 切回消息tab
+  switchTab('chat');
+
+  // 重置tip
+  const tip = document.getElementById('memoryTip');
+  tip.classList.remove('saved');
+  tip.innerHTML = '<div class="tip-icon-btn" title="存入记忆库">📒</div>';
+  tip.style.animation = 'none';
+  tip.offsetHeight;
+  tip.style.opacity = '0';
+  tip.style.transform = 'translateY(6px)';
+  tip.style.animation = 'tipSlideIn 0.4s ease forwards 0.3s';
+
+  // 清除邮件红点
+  document.getElementById('mailNewDot').style.display = 'none';
+  document.getElementById('mailUnread').style.display = 'none';
+  document.getElementById('mailPreview').textContent = 'lukaszhong: 前端POC已完成…';
+  document.getElementById('mailTime').textContent = '09:30';
+
+  // 移除动态脉络节点
+  const dm = document.getElementById('dynamicMsNode');
+  if (dm) dm.remove();
+  const track = document.getElementById('msTrack');
+  const lastNode = track.querySelector('.milestone-node:last-child');
+  const ll = lastNode.querySelector('.milestone-line');
+  if (ll) { ll.style.display = ''; ll.classList.remove('active'); }
+  document.getElementById('msTitle').textContent = '事件脉络 · 4个关键节点';
+
+  // 隐藏新卡片
+  document.getElementById('newNode').style.display = 'none';
+  document.getElementById('newCard').classList.remove('animate-in');
+
+  // 恢复数字
+  document.getElementById('replyCount').textContent = '12 条回复 · 3个阶段';
+  document.getElementById('mailUpdateCount').textContent = '12条更新';
+  document.getElementById('aiBadge').textContent = '本周2个决策点';
+
+  // 滚动
+  document.getElementById('mailBody').scrollTo({ top: 0 });
+  const chat = document.getElementById('chatMessages');
+  setTimeout(() => { chat.scrollTo({ top: chat.scrollHeight, behavior: 'smooth' }); }, 100);
+
+  showToast('🔄 已重置，可以重新体验');
+}
+
+// ========== 折叠 ==========
+function toggleAISummary() {
+  const body = document.getElementById('aiBody');
+  const arrow = document.getElementById('aiArrow');
+  body.classList.toggle('collapsed');
+  arrow.classList.toggle('collapsed');
+  if (!body.classList.contains('collapsed')) body.style.maxHeight = body.scrollHeight + 'px';
+}
+function toggleMilestone() {
+  const body = document.getElementById('msBody');
+  const arrow = document.getElementById('msArrow');
+  body.classList.toggle('collapsed');
+  arrow.classList.toggle('collapsed');
+  if (!body.classList.contains('collapsed')) body.style.maxHeight = body.scrollHeight + 'px';
+}
+
+// ========== Toast ==========
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.innerHTML = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// 初始滚动聊天到底部
+document.getElementById('chatMessages').scrollTop = document.getElementById('chatMessages').scrollHeight;
+</script>
+
+</body>
+</html>
